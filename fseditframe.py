@@ -1,4 +1,8 @@
-import sys, wx, wx.stc
+import sys
+
+import wx
+import wx.stc
+
 
 class FullscreenEditFrame(wx.Frame):
     """

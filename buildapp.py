@@ -4,8 +4,10 @@
 # Call this with this command line: buildapp.py py2app
 
 from distutils.core import setup
+
+import py2app  # pylint: disable=unused-import,import-error
+
 from version import versionString
-import py2app # pylint: disable=unused-import,import-error
 
 setup(app = ['app.py'], options = dict(py2app = dict( argv_emulation = True,
                                        iconfile = 'appicons/app.icns', \

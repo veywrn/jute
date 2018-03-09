@@ -1,5 +1,7 @@
 import wx
+
 import metrics
+
 
 class PreferenceFrame(wx.Frame):
     """
@@ -135,4 +137,3 @@ class PreferenceFrame(wx.Frame):
         self.app.applyPrefs()
         self.panelSizer.Fit(self)
         self.borderSizer.Fit(self)
-

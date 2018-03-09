@@ -5,6 +5,7 @@ for the OS we're running on.
 
 import sys
 
+
 def size(type):
     """
     Returns the number of pixels to use for a certain context.

@@ -1,5 +1,11 @@
-import os, imp, re, tweeregex, tweelexer
+import imp
+import os
+import re
 from collections import OrderedDict
+
+import tweelexer
+import tweeregex
+
 
 class Header(object):
     # The name "id" is too short and is the name of a builtin, but it's part of the interface now.
@@ -203,4 +209,3 @@ class Header(object):
         else:
             obj = Header(type, path, builtinPath)
         return obj
-

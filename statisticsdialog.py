@@ -1,7 +1,12 @@
-import wx, re, locale
-from tiddlywiki import TiddlyWiki
-import tweeregex
+import locale
+import re
+
+import wx
+
 import metrics
+import tweeregex
+from tiddlywiki import TiddlyWiki
+
 
 class StatisticsDialog(wx.Dialog):
     """
@@ -126,4 +131,3 @@ class StatisticsDialog(wx.Dialog):
             self.panelSizer.Add(tagsCtrl, flag = wx.ALIGN_CENTER)
 
     MIN_WIDTH = 300
-

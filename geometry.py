@@ -3,7 +3,10 @@ This module has basic utilities for working with wx.Rects
 and Lines (which are tuples of wx.Points).
 """
 
-import math, wx
+import math
+
+import wx
+
 
 def clipLineByRects(line, *rects):
     """

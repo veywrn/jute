@@ -1,5 +1,9 @@
-import re, wx
+import re
+
+import wx
+
 import metrics
+
 
 class FindPanel(wx.Panel):
     """

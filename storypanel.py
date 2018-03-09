@@ -1,9 +1,15 @@
+import pickle
+import re
+import sys
 from collections import defaultdict
-from itertools import izip, chain
-import sys, wx, re, pickle
+from itertools import chain, izip
+
+import wx
+
 import geometry
-from tiddlywiki import TiddlyWiki
 from passagewidget import PassageWidget
+from tiddlywiki import TiddlyWiki
+
 
 class StoryPanel(wx.ScrolledWindow):
     """

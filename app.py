@@ -1,11 +1,21 @@
 #!/usr/bin/env python2
 
-import sys, os, locale, re, pickle, wx, platform, traceback
+import locale
+import os
+import pickle
+import platform
+import re
+import sys
+import traceback
+
+import wx
+
 import metrics
 from header import Header
-from storyframe import StoryFrame
 from prefframe import PreferenceFrame
+from storyframe import StoryFrame
 from version import versionString
+
 
 class App(wx.App):
     """This bootstraps our application and keeps track of preferences, etc."""

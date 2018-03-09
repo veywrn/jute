@@ -1,11 +1,23 @@
-import sys, re, os, urllib, urlparse, pickle, wx, codecs, tempfile, images, version
+import codecs
+import os
+import pickle
+import re
+import sys
+import tempfile
+import urllib
+import urlparse
+
+import wx
 from wx.lib import imagebrowser
-from tiddlywiki import TiddlyWiki
-from storypanel import StoryPanel
+
+import images
+import version
 from passagewidget import PassageWidget
 from statisticsdialog import StatisticsDialog
-from storysearchframes import StoryFindFrame, StoryReplaceFrame
 from storymetadataframe import StoryMetadataFrame
+from storypanel import StoryPanel
+from storysearchframes import StoryFindFrame, StoryReplaceFrame
+from tiddlywiki import TiddlyWiki
 from utils import isURL
 
 

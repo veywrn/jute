@@ -1,5 +1,7 @@
 import wx
+
 import metrics
+
 
 class StoryMetadataFrame(wx.Frame):
     """

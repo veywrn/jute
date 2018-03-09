@@ -1,5 +1,7 @@
 import wx
+
 from searchpanels import FindPanel, ReplacePanel
+
 
 class PassageSearchFrame(wx.Frame):
     """
@@ -50,4 +52,3 @@ class PassageSearchFrame(wx.Frame):
 
     FIND_TAB = 0
     REPLACE_TAB = 1
-

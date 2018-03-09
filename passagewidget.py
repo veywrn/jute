@@ -1,6 +1,17 @@
-import copy, math, colorsys, re, wx, tiddlywiki, tweelexer
-import geometry, metrics, images
-from passageframe import PassageFrame, ImageFrame, StorySettingsFrame
+import colorsys
+import copy
+import math
+import re
+
+import wx
+
+import geometry
+import images
+import metrics
+import tiddlywiki
+import tweelexer
+from passageframe import ImageFrame, PassageFrame, StorySettingsFrame
+
 
 class PassageWidget(object):
     """
@@ -889,5 +900,3 @@ class PassageWidgetContext(wx.Menu):
         delete = wx.MenuItem(self, wx.NewId(), 'Delete ' + title)
         self.AppendItem(delete)
         self.Bind(wx.EVT_MENU, lambda e: self.parent.parent.removeWidget(self.parent.passage.title), id = delete.GetId())
-
-

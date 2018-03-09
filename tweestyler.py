@@ -1,5 +1,8 @@
+import wx
+import wx.stc
+
 from tweelexer import TweeLexer
-import wx, wx.stc
+
 
 class TweeStyler(TweeLexer):
     """Applies syntax highlighting for Twee syntax in a wx.StyledTextCtrl.

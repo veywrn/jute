@@ -1,13 +1,25 @@
-import sys, os, re, threading, wx, wx.lib.scrolledpanel, wx.animate, base64, tweeregex
-import metrics, images
-from version import versionString
+import base64
+import cStringIO
+import os
+import re
+import sys
+import threading
+
+import wx
+import wx.animate
+import wx.lib.scrolledpanel
+
+import images
+import metrics
+import tweeregex
+from fseditframe import FullscreenEditFrame
+from passagesearchframe import PassageSearchFrame
+from tiddlywiki import TiddlyWiki
 from tweelexer import TweeLexer
 from tweestyler import TweeStyler
-from tiddlywiki import TiddlyWiki
-from passagesearchframe import PassageSearchFrame
-from fseditframe import FullscreenEditFrame
 from utils import isURL
-import cStringIO
+from version import versionString
+
 
 class PassageFrame(wx.Frame):
     """
@@ -1167,4 +1179,3 @@ class ImageFrame(PassageFrame):
     IMPORT_IMAGE = 1004
     EXPORT_IMAGE = 1005
     SAVE_IMAGE = 1006
-

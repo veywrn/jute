@@ -10,9 +10,15 @@ you'd normally see in a TiddlyWiki; the goal here is to provide classes
 that translate between Twee and TiddlyWiki output seamlessly.
 """
 
-import re, time, locale, os, codecs
+import codecs
+import locale
+import os
+import re
+import time
+
 import tweeregex
 from tweelexer import TweeLexer
+
 
 class TiddlyWiki(object):
     """An entire TiddlyWiki."""

@@ -2,7 +2,11 @@
 A module for handling base64 encoded images and other assets.
 """
 
-import cStringIO, wx, re
+import cStringIO
+import re
+
+import wx
+
 
 def addURIPrefix(text, mimeType):
     """ Adds the Data URI MIME prefix to the base64 data"""
