@@ -789,6 +789,10 @@ class StoryPanel(wx.ScrolledWindow):
             bottomSide = i.pos[1] + i.getSize()[1]
             width = max(width, rightSide)
             height = max(height, bottomSide)
+
+        width = width + wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X)
+        height = height + wx.SystemSettings.GetMetric(wx.SYS_HSCROLL_Y)
+        
         return (width, height)
 
     def zoom(self, scale):
