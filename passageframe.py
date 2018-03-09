@@ -125,10 +125,12 @@ class PassageFrame(wx.Frame):
 
         editMenu.AppendSeparator()
 
-        editMenu.Append(PassageFrame.EDIT_LINE_NUMBERS, 'Toggle Line Numbers')
+        editMenu.AppendCheckItem(PassageFrame.EDIT_LINE_NUMBERS, 'Line Numbers')
+        editMenu.Check(PassageFrame.EDIT_LINE_NUMBERS, self.hasLineNumbers)
         self.Bind(wx.EVT_MENU, self.toggleLineNumbers, id = PassageFrame.EDIT_LINE_NUMBERS)
 
-        editMenu.Append(PassageFrame.EDIT_WORD_WRAP, 'Toggle Word Wrap')
+        editMenu.AppendCheckItem(PassageFrame.EDIT_WORD_WRAP, 'Word Wrap')
+        editMenu.Check(PassageFrame.EDIT_WORD_WRAP, self.hasWordWrap)
         self.Bind(wx.EVT_MENU, self.toggleWordWrap, id = PassageFrame.EDIT_WORD_WRAP)
 
         # help menu
