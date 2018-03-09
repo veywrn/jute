@@ -17,7 +17,10 @@ class App(wx.App):
     def __init__(self, redirect = False):
         """Initializes the application."""
         wx.App.__init__(self, redirect = redirect)
-        locale.setlocale(locale.LC_ALL, '')
+        # rs: Possibly due to a wxPython version mismatch, but this line causes library to fail an internal assertion.
+        #     e.g.: wx._core.PyAssertionError: C++ assertion "strcmp(setlocale(LC_ALL, NULL), "C") == 0" failed
+        #     Commenting out for now, hoping nothing breaks.
+        # locale.setlocale(locale.LC_ALL, '')
         self.stories = []
         self.loadPrefs()
         self.determinePaths()
