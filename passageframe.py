@@ -33,6 +33,7 @@ class PassageFrame(wx.Frame):
         self.lastFindFlags = None
         self.usingLexer = self.LEXER_NORMAL
         self.titleInvalid = False
+        self.hasLineNumbers = False
 
         wx.Frame.__init__(self, parent, wx.ID_ANY, title = 'Untitled Passage - ' + self.app.NAME + ' ' + versionString, \
                           size = PassageFrame.DEFAULT_SIZE)
@@ -120,6 +121,11 @@ class PassageFrame(wx.Frame):
 
         editMenu.Append(wx.ID_REPLACE, '&Replace...\t' + shortcut)
         self.Bind(wx.EVT_MENU, lambda e: self.showSearchFrame(PassageSearchFrame.REPLACE_TAB), id = wx.ID_REPLACE)
+
+        editMenu.AppendSeparator()
+
+        editMenu.Append(PassageFrame.EDIT_LINE_NUMBERS, 'Toggle Line Numbers')
+        self.Bind(wx.EVT_MENU, self.toggleLineNumbers, id = PassageFrame.EDIT_LINE_NUMBERS)
 
         # help menu
 
@@ -654,6 +660,16 @@ class PassageFrame(wx.Frame):
                 self.lexer.initStyles()
             self.bodyInput.Colourise(0, len(self.bodyInput.GetText()))
 
+    def toggleLineNumbers(self, event = None):
+        self.hasLineNumbers = not self.hasLineNumbers
+
+        if self.hasLineNumbers:
+            self.bodyInput.SetMarginType(1, wx.stc.STC_MARGIN_NUMBER)
+            self.bodyInput.SetMarginMask(1, 0)
+            self.bodyInput.SetMarginWidth(1, 50)
+        else:
+            self.bodyInput.SetMarginWidth(1, 0)
+
     def updateUI(self, event):
         """Updates menus."""
 
@@ -785,7 +801,7 @@ class PassageFrame(wx.Frame):
 
     # menu constants (not defined by wx)
 
-    EDIT_FIND_NEXT = 2001
+    [EDIT_FIND_NEXT, EDIT_LINE_NUMBERS] = range(2001, 2003)
     [PASSAGE_FULLSCREEN, PASSAGE_EDIT_SELECTION, PASSAGE_REBUILD_STORY, PASSAGE_TEST_HERE, PASSAGE_VERIFY] = range(1001,1006)
     [HELP1, HELP2, HELP3, HELP4, HELP5] = range(3001,3006)
 
