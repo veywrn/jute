@@ -34,6 +34,7 @@ class PassageFrame(wx.Frame):
         self.usingLexer = self.LEXER_NORMAL
         self.titleInvalid = False
         self.hasLineNumbers = False
+        self.hasWordWrap = True
 
         wx.Frame.__init__(self, parent, wx.ID_ANY, title = 'Untitled Passage - ' + self.app.NAME + ' ' + versionString, \
                           size = PassageFrame.DEFAULT_SIZE)
@@ -126,6 +127,9 @@ class PassageFrame(wx.Frame):
 
         editMenu.Append(PassageFrame.EDIT_LINE_NUMBERS, 'Toggle Line Numbers')
         self.Bind(wx.EVT_MENU, self.toggleLineNumbers, id = PassageFrame.EDIT_LINE_NUMBERS)
+
+        editMenu.Append(PassageFrame.EDIT_WORD_WRAP, 'Toggle Word Wrap')
+        self.Bind(wx.EVT_MENU, self.toggleWordWrap, id = PassageFrame.EDIT_WORD_WRAP)
 
         # help menu
 
@@ -669,6 +673,16 @@ class PassageFrame(wx.Frame):
             self.bodyInput.SetMarginWidth(1, 50)
         else:
             self.bodyInput.SetMarginWidth(1, 0)
+    
+    def toggleWordWrap(self, event = None):
+        self.hasWordWrap = not self.hasWordWrap
+
+        if self.hasWordWrap:
+            self.bodyInput.SetWrapMode(wx.stc.STC_WRAP_WORD)
+        else:
+            self.bodyInput.SetWrapMode(wx.stc.STC_WRAP_NONE)
+            
+        self.bodyInput.SetUseHorizontalScrollBar(not self.hasWordWrap)
 
     def updateUI(self, event):
         """Updates menus."""
@@ -801,7 +815,7 @@ class PassageFrame(wx.Frame):
 
     # menu constants (not defined by wx)
 
-    [EDIT_FIND_NEXT, EDIT_LINE_NUMBERS] = range(2001, 2003)
+    [EDIT_FIND_NEXT, EDIT_LINE_NUMBERS, EDIT_WORD_WRAP] = range(2001, 2004)
     [PASSAGE_FULLSCREEN, PASSAGE_EDIT_SELECTION, PASSAGE_REBUILD_STORY, PASSAGE_TEST_HERE, PASSAGE_VERIFY] = range(1001,1006)
     [HELP1, HELP2, HELP3, HELP4, HELP5] = range(3001,3006)
 
