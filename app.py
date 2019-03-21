@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 
-import locale
 import os
 import pickle
 import platform
@@ -21,16 +20,14 @@ class App(wx.App):
     """This bootstraps our application and keeps track of preferences, etc."""
 
     NAME = 'Twine'
-    VERSION = '%s (running on %s %s)' % (versionString, platform.system(), platform.release()) #Named attributes not available in Python 2.6
+    VERSION = '%s (running on %s %s)' % (versionString, platform.system(), platform.release())  
     RECENT_FILES = 10
 
-    def __init__(self, redirect = False):
+    def __init__(self, redirect=False):
         """Initializes the application."""
-        wx.App.__init__(self, redirect = redirect)
-        # rs: Possibly due to a wxPython version mismatch, but this line causes library to fail an internal assertion.
-        #     e.g.: wx._core.PyAssertionError: C++ assertion "strcmp(setlocale(LC_ALL, NULL), "C") == 0" failed
-        #     Commenting out for now, hoping nothing breaks.
-        # locale.setlocale(locale.LC_ALL, '')
+        wx.App.__init__(self, redirect=redirect)
+        wx.Locale().Init(wx.LANGUAGE_DEFAULT)
+
         self.stories = []
         self.loadPrefs()
         self.determinePaths()
