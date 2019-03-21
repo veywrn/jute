@@ -98,7 +98,7 @@ class TweeStyler(TweeLexer):
         self.ctrl.StyleSetForeground(self.PARAM_BOOL, self.PARAM_BOOL_COLOR)
 
     def getText(self):
-        return self.ctrl.GetTextUTF8()
+        return self.ctrl.GetTextRaw()
 
     def passageExists(self, title):
         return self.frame.widget.parent.passageExists(title, False)

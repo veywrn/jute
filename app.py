@@ -44,7 +44,7 @@ class App(wx.App):
         # try to load our app icon
         # if it doesn't work, we continue anyway
 
-        self.icon = wx.EmptyIcon()
+        self.icon = wx.Icon()
 
         try:
             self.icon = wx.Icon(self.iconsPath + 'app.ico', wx.BITMAP_TYPE_ICO)
@@ -163,7 +163,7 @@ class App(wx.App):
         else:
             try:
                 self.prefFrame.Raise()
-            except wx._core.PyDeadObjectError:
+            except RuntimeError:
                 # user closed the frame, so we need to recreate it
                 delattr(self, 'prefFrame')
                 self.showPrefs(event)

@@ -81,8 +81,8 @@ class StoryFrame(wx.Frame):
         self.recentFiles.Load(self.app.config)
         self.app.verifyRecentFiles(self)
         self.recentFiles.UseMenu(recentFilesMenu)
-        self.recentFiles.AddFilesToThisMenu(recentFilesMenu)
-        fileMenu.AppendMenu(wx.ID_ANY, 'Open &Recent', recentFilesMenu)
+        self.recentFiles.AddFilesToMenu(recentFilesMenu)
+        fileMenu.Append(wx.ID_ANY, 'Open &Recent', recentFilesMenu)
         self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 0), id=wx.ID_FILE1)
         self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 1), id=wx.ID_FILE2)
         self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 2), id=wx.ID_FILE3)
@@ -116,7 +116,7 @@ class StoryFrame(wx.Frame):
         importMenu.Append(StoryFrame.FILE_IMPORT_SOURCE, 'Twee Source &Code...')
         self.Bind(wx.EVT_MENU, self.importSourceDialog, id=StoryFrame.FILE_IMPORT_SOURCE)
 
-        fileMenu.AppendMenu(wx.ID_ANY, '&Import', importMenu)
+        fileMenu.Append(wx.ID_ANY, '&Import', importMenu)
 
         # Export submenu
 
@@ -128,7 +128,7 @@ class StoryFrame(wx.Frame):
         exportMenu.Append(StoryFrame.FILE_EXPORT_PROOF, '&Proofing Copy...')
         self.Bind(wx.EVT_MENU, self.proof, id=StoryFrame.FILE_EXPORT_PROOF)
 
-        fileMenu.AppendMenu(wx.ID_ANY, '&Export', exportMenu)
+        fileMenu.Append(wx.ID_ANY, '&Export', exportMenu)
 
         fileMenu.AppendSeparator()
 
@@ -246,7 +246,7 @@ class StoryFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.newWidget(tags=['annotation']),
                   id=StoryFrame.STORY_NEW_ANNOTATION)
 
-        self.storyMenu.AppendMenu(wx.ID_ANY, 'New', self.newPassageMenu)
+        self.storyMenu.Append(wx.ID_ANY, 'New', self.newPassageMenu)
 
         self.storyMenu.Append(wx.ID_EDIT, '&Edit Passage\tCtrl-E')
         self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.eachSelectedWidget(lambda w: w.openEditor(e)), id=wx.ID_EDIT)
@@ -263,7 +263,7 @@ class StoryFrame(wx.Frame):
         self.importImageMenu.Append(StoryFrame.STORY_IMPORT_IMAGE_URL, 'From Web &URL...')
         self.Bind(wx.EVT_MENU, self.importImageURLDialog, id=StoryFrame.STORY_IMPORT_IMAGE_URL)
 
-        self.storyMenu.AppendMenu(wx.ID_ANY, 'Import &Image', self.importImageMenu)
+        self.storyMenu.Append(wx.ID_ANY, 'Import &Image', self.importImageMenu)
 
         self.storyMenu.Append(StoryFrame.STORY_IMPORT_FONT, 'Import &Font...')
         self.Bind(wx.EVT_MENU, self.importFontDialog, id=StoryFrame.STORY_IMPORT_FONT)
@@ -307,7 +307,7 @@ class StoryFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, lambda e: wx.LaunchDefaultBrowser('http://twinery.org/wiki/special_passages'),
                   id=StoryFrame.STORYSETTINGS_HELP)
 
-        self.storyMenu.AppendMenu(wx.ID_ANY, 'Special Passages', self.storySettingsMenu)
+        self.storyMenu.Append(wx.ID_ANY, 'Special Passages', self.storySettingsMenu)
 
         self.storyMenu.AppendSeparator()
 
@@ -335,7 +335,7 @@ class StoryFrame(wx.Frame):
         storyFormatMenu.Append(StoryFrame.STORY_FORMAT_HELP, '&About Story Formats')
         self.Bind(wx.EVT_MENU, lambda e: self.app.storyFormatHelp(), id=StoryFrame.STORY_FORMAT_HELP)
 
-        self.storyMenu.AppendMenu(wx.ID_ANY, 'Story &Format', storyFormatMenu)
+        self.storyMenu.Append(wx.ID_ANY, 'Story &Format', storyFormatMenu)
 
         self.storyMenu.Append(StoryFrame.STORY_METADATA, 'Story &Metadata...')
         self.Bind(wx.EVT_MENU, self.showMetadata, id=StoryFrame.STORY_METADATA)
@@ -420,29 +420,29 @@ class StoryFrame(wx.Frame):
         self.toolbar = self.CreateToolBar(style=wx.TB_FLAT | wx.TB_NODIVIDER)
         self.toolbar.SetToolBitmapSize((StoryFrame.TOOLBAR_ICON_SIZE, StoryFrame.TOOLBAR_ICON_SIZE))
 
-        self.toolbar.AddLabelTool(StoryFrame.STORY_NEW_PASSAGE, 'New Passage', \
+        self.toolbar.AddTool(StoryFrame.STORY_NEW_PASSAGE, 'New Passage', \
                                   wx.Bitmap(iconPath + 'newpassage.png'), \
                                   shortHelp=StoryFrame.NEW_PASSAGE_TOOLTIP)
         self.Bind(wx.EVT_TOOL, lambda e: self.storyPanel.newWidget(), id=StoryFrame.STORY_NEW_PASSAGE)
 
         self.toolbar.AddSeparator()
 
-        self.toolbar.AddLabelTool(wx.ID_ZOOM_IN, 'Zoom In', \
+        self.toolbar.AddTool(wx.ID_ZOOM_IN, 'Zoom In', \
                                   wx.Bitmap(iconPath + 'zoomin.png'), \
                                   shortHelp=StoryFrame.ZOOM_IN_TOOLTIP)
         self.Bind(wx.EVT_TOOL, lambda e: self.storyPanel.zoom('in'), id=wx.ID_ZOOM_IN)
 
-        self.toolbar.AddLabelTool(wx.ID_ZOOM_OUT, 'Zoom Out', \
+        self.toolbar.AddTool(wx.ID_ZOOM_OUT, 'Zoom Out', \
                                   wx.Bitmap(iconPath + 'zoomout.png'), \
                                   shortHelp=StoryFrame.ZOOM_OUT_TOOLTIP)
         self.Bind(wx.EVT_TOOL, lambda e: self.storyPanel.zoom('out'), id=wx.ID_ZOOM_OUT)
 
-        self.toolbar.AddLabelTool(wx.ID_ZOOM_FIT, 'Zoom to Fit', \
+        self.toolbar.AddTool(wx.ID_ZOOM_FIT, 'Zoom to Fit', \
                                   wx.Bitmap(iconPath + 'zoomfit.png'), \
                                   shortHelp=StoryFrame.ZOOM_FIT_TOOLTIP)
         self.Bind(wx.EVT_TOOL, lambda e: self.storyPanel.zoom('fit'), id=wx.ID_ZOOM_FIT)
 
-        self.toolbar.AddLabelTool(wx.ID_ZOOM_100, 'Zoom to 100%', \
+        self.toolbar.AddTool(wx.ID_ZOOM_100, 'Zoom to 100%', \
                                   wx.Bitmap(iconPath + 'zoom1.png'), \
                                   shortHelp=StoryFrame.ZOOM_ONE_TOOLTIP)
         self.Bind(wx.EVT_TOOL, lambda e: self.storyPanel.zoom(1.0), id=wx.ID_ZOOM_100)
@@ -1081,7 +1081,7 @@ You can also include URLs of .tws and .twee files, too.
         else:
             try:
                 self.metadataFrame.Raise()
-            except wx._core.PyDeadObjectError:
+            except RuntimeError:
                 # user closed the frame, so we need to recreate it
                 delattr(self, 'metadataFrame')
                 self.showMetadata(event)
@@ -1096,7 +1096,7 @@ You can also include URLs of .tws and .twee files, too.
         else:
             try:
                 self.findFrame.Raise()
-            except wx._core.PyDeadObjectError:
+            except RuntimeError:
                 # user closed the frame, so we need to recreate it
                 delattr(self, 'findFrame')
                 self.showFind(event)
@@ -1110,7 +1110,7 @@ You can also include URLs of .tws and .twee files, too.
         else:
             try:
                 self.replaceFrame.Raise()
-            except wx._core.PyDeadObjectError:
+            except RuntimeError:
                 # user closed the frame, so we need to recreate it
                 delattr(self, 'replaceFrame')
                 self.showReplace(event)
@@ -1345,7 +1345,7 @@ class ClipboardMonitor(wx.Timer):
     def __init__(self, callback):
         wx.Timer.__init__(self)
         self.callback = callback
-        self.dataFormat = wx.CustomDataFormat(StoryPanel.CLIPBOARD_FORMAT)
+        self.dataFormat = wx.DataFormat(StoryPanel.CLIPBOARD_FORMAT)
         self.state = None
 
     def Notify(self, *args, **kwargs):

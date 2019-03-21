@@ -6,3 +6,5 @@ dist/
 
 .pydevproject
 .project
+
+.vscode/

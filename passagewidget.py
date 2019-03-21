@@ -241,7 +241,7 @@ class PassageWidget(object):
                 self.passageFrame.Iconize(False)
                 self.passageFrame.Raise()
                 if fullscreen and not image: self.passageFrame.openFullscreen()
-            except wx._core.PyDeadObjectError:
+            except RuntimeError:
                 # user closed the frame, so we need to recreate it
                 delattr(self, 'passageFrame')
                 self.openEditor(event, fullscreen)
@@ -523,10 +523,12 @@ class PassageWidget(object):
                     c[0] *= a
                     c[1] *= a
                     c[2] *= a
+
+            c = [max(0, min(255, int(i))) for i in c]
             return wx.Colour(*c)
 
         # set up our buffer
-        bitmap = wx.EmptyBitmap(size.width, size.height)
+        bitmap = wx.Bitmap(size.width, size.height)
         self.paintBuffer.SelectObject(bitmap)
 
         # switch to a GraphicsContext as necessary
@@ -783,7 +785,7 @@ class PassageWidget(object):
         # finally, draw a selection over ourselves if we're selected
 
         if self.selected:
-            color = dim(titleBarColor if flat else wx.SystemSettings_GetColour(wx.SYS_COLOUR_HIGHLIGHT), self.dimmed)
+            color = dim(titleBarColor if flat else wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHT), self.dimmed)
             if self.app.config.ReadBool('fastStoryPanel'):
                 gc.SetPen(wx.Pen(color, 2 + flat))
             else:
@@ -890,13 +892,13 @@ class PassageWidgetContext(wx.Menu):
 
         if parent.passage.isStoryPassage():
             test = wx.MenuItem(self, wx.NewId(), 'Test Play From Here')
-            self.AppendItem(test)
+            self.Append(test)
             self.Bind(wx.EVT_MENU, lambda e: self.parent.parent.parent.testBuild(startAt = parent.passage.title), id = test.GetId())
 
         edit = wx.MenuItem(self, wx.NewId(), 'Edit ' + title)
-        self.AppendItem(edit)
+        self.Append(edit)
         self.Bind(wx.EVT_MENU, self.parent.openEditor, id = edit.GetId())
 
         delete = wx.MenuItem(self, wx.NewId(), 'Delete ' + title)
-        self.AppendItem(delete)
+        self.Append(delete)
         self.Bind(wx.EVT_MENU, lambda e: self.parent.parent.removeWidget(self.parent.passage.title), id = delete.GetId())
