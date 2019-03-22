@@ -1088,25 +1088,25 @@ class StoryPanelContext(wx.Menu):
 
         if self.parent.parent.menus.IsEnabled(wx.ID_PASTE):
             pastePassage = wx.MenuItem(self, wx.NewId(), 'Paste Passage Here')
-            self.AppendItem(pastePassage)
+            self.Append(pastePassage)
             self.Bind(wx.EVT_MENU, lambda e: self.parent.pasteWidgets(self.getPos()), id = pastePassage.GetId())
 
         newPassage = wx.MenuItem(self, wx.NewId(), 'New Passage Here')
-        self.AppendItem(newPassage)
+        self.Append(newPassage)
         self.Bind(wx.EVT_MENU, self.newWidget, id = newPassage.GetId())
 
         self.AppendSeparator()
 
         newPassage = wx.MenuItem(self, wx.NewId(), 'New Stylesheet Here')
-        self.AppendItem(newPassage)
+        self.Append(newPassage)
         self.Bind(wx.EVT_MENU, lambda e: self.newWidget(e, text = StoryPanel.FIRST_CSS, tags = ['stylesheet']), id = newPassage.GetId())
 
         newPassage = wx.MenuItem(self, wx.NewId(), 'New Script Here')
-        self.AppendItem(newPassage)
+        self.Append(newPassage)
         self.Bind(wx.EVT_MENU, lambda e: self.newWidget(e, tags = ['script']), id = newPassage.GetId())
 
         newPassage = wx.MenuItem(self, wx.NewId(), 'New Annotation Here')
-        self.AppendItem(newPassage)
+        self.Append(newPassage)
         self.Bind(wx.EVT_MENU, lambda e: self.newWidget(e, tags = ['annotation']), id = newPassage.GetId())
 
     def getPos(self):
