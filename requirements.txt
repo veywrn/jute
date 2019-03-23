@@ -1,3 +1,4 @@
+setuptools  >= 40.*
 # Meant for when building out features instead of refactors or tests.
 #dulwich     == 0.19.*
 py2app      == 0.6.*
