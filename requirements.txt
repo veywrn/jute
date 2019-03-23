@@ -1,4 +1,6 @@
-py2app==0.6.4
-py2exe_py2==0.6.9
-pywin32>=214
-wxPython==4.0.4
+# Meant for when building out features instead of refactors or tests.
+#dulwich     == 0.19.*
+py2app      == 0.6.*
+py2exe_py2  == 0.6.*
+pywin32     >= 214
+wxPython    == 4.0.*
