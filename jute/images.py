@@ -2,7 +2,7 @@
 A module for handling base64 encoded images and other assets.
 """
 
-import cStringIO
+import io
 import re
 
 import wx
@@ -40,7 +40,7 @@ def base64ToBitmap(text):
         text = removeURIPrefix(text)
         # Convert to bitmap
         imgData = text.decode('base64')
-        stream = cStringIO.StringIO(imgData)
+        stream = io.StringIO(imgData)
         return wx.BitmapFromImage(wx.ImageFromStream(stream))
     except:
         pass
@@ -49,7 +49,7 @@ def bitmapToBase64PNG(bmp):
     img = bmp.ConvertToImage()
     # "PngZL" in wxPython 2.9 is equivalent to wx.IMAGE_OPTION_PNG_COMPRESSION_LEVEL in wxPython Phoenix
     img.SetOptionInt("PngZL", 9)
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
     try:
         img.SaveStream(stream, wx.BITMAP_TYPE_PNG)
         return "data:image/png;base64," + stream.getvalue().encode('base64')

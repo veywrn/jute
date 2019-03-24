@@ -1,5 +1,5 @@
 import base64
-import cStringIO
+import io
 import os
 import re
 import sys
@@ -423,7 +423,7 @@ class PassageFrame(wx.Frame):
                     downloadedurls[imgurl] = imgpassagename
 
             # Replace all found images
-            for old, new in downloadedurls.iteritems():
+            for old, new in downloadedurls.items():
                 self.widget.passage.text = re.sub(regex.replace(tweeregex.IMAGE_FILENAME_REGEX, re.escape(old)),
                                                   lambda m: m.group(0).replace(old, new), self.widget.passage.text)
 
@@ -768,7 +768,7 @@ class PassageFrame(wx.Frame):
 
         # incoming links
 
-        for widget in self.widget.parent.widgetDict.itervalues():
+        for widget in self.widget.parent.widgetDict.values():
             if self.widget.passage.title in widget.passage.links \
             and len(widget.passage.title) > 0:
                 incoming.append(widget.passage.title)
@@ -990,7 +990,7 @@ class ImageFrame(PassageFrame):
         # image pane
 
         self.imageScroller = wx.ScrolledWindow(self.panel)
-        self.imageSizer = wx.GridSizer(1,1)
+        self.imageSizer = wx.GridSizer(1,1, wx.Size(0, 0))
         self.imageScroller.SetSizer(self.imageSizer)
 
         # image menu
@@ -1096,7 +1096,7 @@ class ImageFrame(PassageFrame):
                 # Convert the full GIF to an Animation
                 anim = wx.animate.Animation()
                 data = base64.b64decode(t[t.index("base64,")+7:])
-                anim.Load(cStringIO.StringIO(data))
+                anim.Load(io.StringIO(data))
 
                 # Load the Animation into the AnimationCtrl
 
@@ -1132,7 +1132,7 @@ class ImageFrame(PassageFrame):
         # Get the extension
         extension = images.getImageType(t)
         dialog = wx.FileDialog(self, 'Save Image', os.getcwd(), self.widget.passage.title + extension, \
-                               'Image File|*' + extension + '|All Files (*.*)|*.*', wx.SAVE | wx.FD_OVERWRITE_PROMPT | wx.FD_CHANGE_DIR)
+                               'Image File|*' + extension + '|All Files (*.*)|*.*', wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT | wx.FD_CHANGE_DIR)
 
         if dialog.ShowModal() == wx.ID_OK:
             try:

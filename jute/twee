@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import sys, os.path, getopt, glob, traceback
 from header import Header
@@ -7,8 +7,8 @@ from version import versionString
 
 
 def usage():
-    print >> sys.stderr, 'usage: twee [-t target] [-s startpassage] source1 [source2..]'
-    print >> sys.stderr, '       (source directories are recursively scanned for .tw/.twee files)'
+    print('usage: twee [-t target] [-s startpassage] source1 [source2..]', file=sys.stderr)
+    print('       (source directories are recursively scanned for .tw/.twee files)', file=sys.stderr)
 
 
 class TweeApp(object):
@@ -22,14 +22,14 @@ class TweeApp(object):
 
     def displayError(self, activity, stacktrace = True):
         activity = activity.strip()
-        print >> sys.stderr, 'Error while ' + activity
+        print('Error while {}'.format(activity), file=sys.stderr)
         if stacktrace:
-            print >> sys.stderr, traceback.format_exc(5)
+            print(traceback.format_exc(5), file=sys.stderr)
         else:
             exceptionValue = sys.exc_info()[1]
             if exceptionValue is not None:
-                print >> sys.stderr, exceptionValue
-            print >> sys.stderr, ''
+                print(exceptionValue, file=sys.stderr)
+            print('', file=sys.stderr)
 
 
 def main(argv):
@@ -69,7 +69,7 @@ def main(argv):
                 sources.append(source)
 
     if len(sources) == 0:
-        print >> sys.stderr, 'twee: no source files specified'
+        print('twee: no source files specified', file=sys.stderr)
         sys.exit(2)
 
     scriptPath = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -88,11 +88,11 @@ def main(argv):
 
     output = tw.toHtml(app, header, order, startAt = start)
     if output is None:
-        print >> sys.stderr, 'twee: no output'
+        print('twee: no output', file=sys.stderr)
     elif sys.stdout.isatty():
-        print output
+        print(output)
     else:
-        print output.encode('utf_8_sig')
+        print(output.encode('utf_8_sig'))
 
 
 if __name__ == '__main__':

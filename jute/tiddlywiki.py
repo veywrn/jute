@@ -100,7 +100,7 @@ class TiddlyWiki(object):
         # Obtain the encoding expected to be used by strftime in this locale
         strftime_encoding = locale.getlocale(locale.LC_TIME)[1] or locale.getpreferredencoding()
         # Write the timestamp
-        output = output.replace('"TIME"', "Built on "+time.strftime("%d %b %Y at %H:%M:%S, "+tz_offset).decode(strftime_encoding))
+        output = output.replace('"TIME"', "Built on {}".format(time.strftime("%d %b %Y at %H:%M:%S, "+tz_offset)))
 
         # Insert the test play "start at passage" value
         if startAt:
@@ -126,7 +126,7 @@ class TiddlyWiki(object):
         # Insert the metadata
 
         metatags = ''
-        for name, content in metadata.iteritems():
+        for name, content in metadata.items():
             if content:
                 metatags += '<meta name="' + name.replace('"','&quot;') + '" content="' + content.replace('"','&quot;') + '">\n'
 
@@ -138,7 +138,7 @@ class TiddlyWiki(object):
         modernizr = 'modernizr' in self.storysettings and self.storysettings['modernizr'] != "off"
         blankCSS = 'blankcss' in self.storysettings and self.storysettings['blankcss'] != "off"
 
-        for i in filter(lambda a: (a.isScript() or a.isStylesheet()), self.tiddlers.itervalues()):
+        for i in filter(lambda a: (a.isScript() or a.isStylesheet()), self.tiddlers.values()):
             if not jquery and i.isScript() and re.search(r'requires? jquery', i.text, re.I):
                 jquery = True
             if not modernizr and re.search(r'requires? modernizr', i.text, re.I):
@@ -182,7 +182,7 @@ class TiddlyWiki(object):
             tiddler = self.tiddlers[i]
             # Strip out comments from storysettings and reflect any alterations made
             if tiddler.title == 'StorySettings':
-                tiddler.text = ''.join([(str(k)+":"+str(v)+"\n") for k,v in self.storysettings.iteritems()])
+                tiddler.text = ''.join([(str(k)+":"+str(v)+"\n") for k,v in self.storysettings.items()])
             if self.NOINCLUDE_TAGS.isdisjoint(tiddler.tags):
                 storyfragments.append(tiddler.toHtml(rot13 and tiddler.isObfuscateable()))
         storycode = u''.join(storyfragments)
@@ -232,14 +232,14 @@ class TiddlyWiki(object):
                 continue
             text = rtf_encode(self.tiddlers[i].text)
             text = re.sub(r'\n', '\\\n', text) # newlines
-            text = re.sub(tweeregex.LINK_REGEX, r'\\b\cf2 \ul \1\ulnone \cf0 \\b0 ', text) # links
+            text = re.sub(tweeregex.LINK_REGEX, r'\\b\\cf2 \\ul \1\\ulnone \\cf0 \\b0 ', text) # links
             text = re.sub(r"''(.*?)''", r'\\b \1\\b0 ', text) # bold
-            text = re.sub(r'\/\/(.*?)\/\/', r'\i \1\i0 ', text) # italics
+            text = re.sub(r'\/\/(.*?)\/\/', r'\\i \1\\i0 ', text) # italics
             text = re.sub(r"\^\^(.*?)\^\^", r'\\super \1\\nosupersub ', text) # sup
             text = re.sub(r"~~(.*?)~~", r'\\sub \1\\nosupersub ', text) # sub
             text = re.sub(r"==(.*?)==", r'\\strike \1\\strike0 ', text) # strike
-            text = re.sub(r'(\<\<.*?\>\>)', r'\\f1\cf1 \1\cf0\\f0 ', text) # macros
-            text = re.sub(tweeregex.HTML_REGEX, r'\\f1\cf1 \g<0>\cf0\\f0 ', text) # macros
+            text = re.sub(r'(\<\<.*?\>\>)', r'\\f1\\cf1 \1\\cf0\\f0 ', text) # macros
+            text = re.sub(tweeregex.HTML_REGEX, r'\\f1\\cf1 \g<0>\\cf0\\f0 ', text) # macros
             text = re.sub(tweeregex.MONO_REGEX, r'\\f1 \1\\f0 ', text) # monospace
             text = re.sub(tweeregex.COMMENT_REGEX, '', text) # comments
 

@@ -1,5 +1,7 @@
+import codecs
 import colorsys
 import copy
+import functools
 import math
 import re
 
@@ -11,6 +13,9 @@ import metrics
 import tiddlywiki
 import tweelexer
 from passageframe import ImageFrame, PassageFrame, StorySettingsFrame
+
+
+decode_hex = codecs.getdecoder('hex_codec')
 
 
 class PassageWidget(object):
@@ -165,19 +170,19 @@ class PassageWidget(object):
 
     def getShorthandDisplays(self):
         """Returns a list of macro tags which match passage names."""
-        return filter(self.parent.passageExists, self.passage.macros)
+        return list(filter(self.parent.passageExists, self.passage.macros))
 
     def getBrokenLinks(self):
         """Returns a list of broken links in this widget."""
-        return filter(lambda a: not self.parent.passageExists(a), self.passage.links)
+        return list(filter(lambda a: not self.parent.passageExists(a), self.passage.links))
 
     def getIncludedLinks(self):
         """Returns a list of included passages in this widget."""
-        return filter(self.parent.includedPassageExists, self.passage.links)
+        return list(filter(self.parent.includedPassageExists, self.passage.links))
 
     def getVariableLinks(self):
         """Returns a list of links which use variables/functions, in this widget."""
-        return filter(lambda a: tweelexer.TweeLexer.linkStyle(a) == tweelexer.TweeLexer.PARAM, self.passage.links)
+        return list(filter(lambda a: tweelexer.TweeLexer.linkStyle(a) == tweelexer.TweeLexer.PARAM, self.passage.links))
 
     def setSelected(self, value, exclusive = True):
         """
@@ -301,7 +306,7 @@ class PassageWidget(object):
 
         # we do this manually so we don't have to go through all of them
 
-        for widget in self.parent.notDraggingWidgets if dragging else self.parent.widgetDict.itervalues():
+        for widget in self.parent.notDraggingWidgets if dragging else self.parent.widgetDict.values():
             if widget != self and self.intersects(widget):
                 return True
 
@@ -509,7 +514,7 @@ class PassageWidget(object):
             if isinstance(c, wx.Colour):
                 c = list(c.Get(includeAlpha=True))
             elif type(c) is str:
-                c = list(ord(a) for a in c[1:].decode('hex'))
+                c = list(a for a in decode_hex(c[1:])[0])
             else:
                 c = list(c)
 
@@ -605,7 +610,7 @@ class PassageWidget(object):
                 gc.Clip(inset, inset, size.width - (inset * 2), titleBarHeight - 2)
             else:
                 gc.DestroyClippingRegion()
-                gc.SetClippingRect(wx.Rect(inset, inset, size.width - (inset * 2), titleBarHeight - 2))
+                gc.SetClippingRegion(wx.Rect(inset, inset, size.width - (inset * 2), titleBarHeight - 2))
 
             titleTextColor = dim(colors['titleText'], self.dimmed)
 
@@ -631,7 +636,7 @@ class PassageWidget(object):
                     gc.Clip(inset, inset, size.width - (inset * 2), size.height - (inset * 2)-1)
                 else:
                     gc.DestroyClippingRegion()
-                    gc.SetClippingRect(wx.Rect(inset, inset, size.width - (inset * 2), size.height - (inset * 2)-1))
+                    gc.SetClippingRegion(wx.Rect(inset, inset, size.width - (inset * 2), size.height - (inset * 2)-1))
 
                 if self.passage.isAnnotation():
                     excerptTextColor = wx.Colour(*colors['annotationText'])
@@ -736,7 +741,7 @@ class PassageWidget(object):
                     gc.Clip(1, titleBarHeight + 1, size.width - 3, size.height - 3)
                 else:
                     gc.DestroyClippingRegion()
-                    gc.SetClippingRect(wx.Rect(1, titleBarHeight + 1, size.width - 3, size.height - 3))
+                    gc.SetClippingRegion(wx.Rect(1, titleBarHeight + 1, size.width - 3, size.height - 3))
 
                 width = size.width
                 height = size.height - titleBarHeight
@@ -807,6 +812,7 @@ class PassageWidget(object):
         return { 'selected': self.selected, 'pos': self.pos, 'passage': copy.copy(self.passage) }
 
     @staticmethod
+    @functools.cmp_to_key
     def posCompare(first, second):
         """
         Sorts PassageWidgets so that the results appear left to right,

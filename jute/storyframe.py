@@ -1,3 +1,4 @@
+import base64
 import codecs
 import os
 import pickle
@@ -5,7 +6,6 @@ import re
 import sys
 import tempfile
 import urllib
-import urlparse
 
 import wx
 from wx.lib import imagebrowser
@@ -505,15 +505,15 @@ class StoryFrame(wx.Frame):
 
         # ask all our widgets to close any editor windows
 
-        for w in list(self.storyPanel.widgetDict.itervalues()):
+        for w in list(self.storyPanel.widgetDict.values()):
             if isinstance(w, PassageWidget):
                 w.closeEditor()
 
         if self.lastTestBuild and os.path.exists(self.lastTestBuild.name):
             try:
                 os.remove(self.lastTestBuild.name)
-            except OSError, ex:
-                print >> sys.stderr, 'Failed to remove lastest test build:', ex
+            except OSError as ex:
+                print('Failed to remove lastest test build: {}'.format(ex), file=sys.stderr)
         self.lastTestBuild = None
 
         self.app.removeStory(self, byMenu)
@@ -555,7 +555,7 @@ class StoryFrame(wx.Frame):
                 path = dialog.GetPath()
                 tw = TiddlyWiki()
 
-                for widget in self.storyPanel.widgetDict.itervalues(): tw.addTiddler(widget.passage)
+                for widget in self.storyPanel.widgetDict.values(): tw.addTiddler(widget.passage)
                 dest = codecs.open(path, 'w', 'utf-8-sig', 'replace')
                 order = [widget.passage.title for widget in self.storyPanel.sortedWidgets()]
                 dest.write(tw.toTwee(order))
@@ -625,7 +625,7 @@ class StoryFrame(wx.Frame):
                 # Insert widgets now
                 lastpos = [0, 0]
                 addedWidgets = []
-                for tiddler in tw.tiddlers.itervalues():
+                for tiddler in tw.tiddlers.values():
                     if tiddler.title in skippedTitles:
                         continue
                     new = self.storyPanel.newWidget(title=tiddler.title, tags=tiddler.tags,
@@ -657,7 +657,7 @@ class StoryFrame(wx.Frame):
         try:
             # Download the file
             urlfile = urllib.urlopen(url)
-            path = urlparse.urlsplit(url)[2]
+            path = urllib.urlsplit(url)[2]
             title = os.path.splitext(os.path.basename(path))[0]
             file = urlfile.read().encode('base64').replace('\n', '')
 
@@ -725,7 +725,7 @@ class StoryFrame(wx.Frame):
 
     def openFileAsBase64(self, file):
         """Opens a file and returns its base64 representation, expressed as a Data URI with MIME type"""
-        file64 = open(file, 'rb').read().encode('base64').replace('\n', '')
+        file64 = base64.b64encode(open(file, 'rb').read()).decode('utf-8')
         title, ext = os.path.splitext(os.path.basename(file))
         return (images.addURIPrefix(file64, ext[1:]), title, ext[1:])
 
@@ -855,7 +855,7 @@ You can also include URLs of .tws and .twee files, too.
     def verify(self, event=None):
         """Runs the syntax checks on all passages."""
         noprobs = True
-        for widget in self.storyPanel.widgetDict.itervalues():
+        for widget in self.storyPanel.widgetDict.values():
             result = widget.verifyPassage(self)
             if result == -1:
                 break
@@ -892,7 +892,7 @@ You can also include URLs of .tws and .twee files, too.
             # assemble our tiddlywiki and write it out
             hasstartpassage = False
             tw = TiddlyWiki()
-            for widget in self.storyPanel.widgetDict.itervalues():
+            for widget in self.storyPanel.widgetDict.values():
                 if widget.passage.title == 'StoryIncludes':
 
                     def callback(passage, tw=tw):
@@ -994,7 +994,7 @@ You can also include URLs of .tws and .twee files, too.
                         s = StoryFrame(None, app=self.app, state=pickle.load(openedFile), refreshIncludes=False)
                         openedFile.close()
 
-                        for widget in s.storyPanel.widgetDict.itervalues():
+                        for widget in s.storyPanel.widgetDict.values():
                             if excludetags.isdisjoint(widget.passage.tags):
                                 callback(widget.passage)
                         s.Destroy()
@@ -1021,7 +1021,7 @@ You can also include URLs of .tws and .twee files, too.
         """
         Opens the last built file in a Web browser.
         """
-        path = u'file://' + urllib.pathname2url((name or self.buildDestination).encode('utf-8'))
+        path = 'file://' + urllib.request.pathname2url((name or self.buildDestination))
         path = path.replace('file://///', 'file:///')
         wx.LaunchDefaultBrowser(path)
 
@@ -1039,7 +1039,7 @@ You can also include URLs of .tws and .twee files, too.
         """
         Called whenever the autobuild timer checks up on things
         """
-        for pathname, oldmtime in self.autobuildfiles.iteritems():
+        for pathname, oldmtime in self.autobuildfiles.items():
             newmtime = os.stat(pathname).st_mtime
             if newmtime != oldmtime:
                 # print "Auto rebuild triggered by: ", pathname
@@ -1156,7 +1156,7 @@ You can also include URLs of .tws and .twee files, too.
         if target not in self.app.headers:
             self.app.displayError("opening the last edited story: the story format '" + target + "' isn't available.\n"
                 + "Please select another format from the Story Format submenu", False)
-            return self.setTarget(self.app.headers.iterkeys().next())
+            return self.setTarget(self.app.headers.keys().next())
         self.target = target
         self.header = self.app.headers[target]
 

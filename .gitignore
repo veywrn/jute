@@ -3,5 +3,7 @@
 __pycache__/
 build/
 dist/
+app.dist/
+app.build/
 
 *.py[cod]

@@ -1,8 +1,5 @@
 setuptools
 wheel
-
-py2app      == 0.18.*   ;platform_system == 'Darwin'
-py2exe_py2  == 0.6.*    ;platform_system == 'Windows' and python_version < '3.0'
-py2exe      == 0.9.*    ;platform_system == 'Windows' and python_version >= '3.0'
-pywin32     >= 222      ;platform_system == 'Windows'
-wxPython    == 4.0.*
+nuitka
+pefile
+wxPython == 4.0.*

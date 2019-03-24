@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 from tiddlywiki import TiddlyWiki
 
@@ -31,19 +31,21 @@ def detectCompiler(head, wiki):
             elif len(madeParts) == 2:
                 version = madeParts[1]
     if verbose:
-        print >>sys.stderr, '"VERSION" string:', tool, version
+        print('"VERSION" string: {} {}'.format(tool, version), file=sys.stderr)
 
     # Look at the modifier (author) of the tiddlers (passages).
     if tool is None or verbose:
         modifierCounts = defaultdict(int)
-        for tiddler in wiki.tiddlers.itervalues():
+        for tiddler in wiki.tiddlers.values():
             modifierCounts[tiddler.modifier] += 1
-        modifiers = sorted(modifierCounts.iteritems(), key = lambda (name, count): count, reverse = True)
+        modifiers = sorted(modifierCounts.items(), key = lambda (name, count): count, reverse = True)
         if verbose:
-            print >>sys.stderr, 'Passage creators:', ', '.join(
+            print('Passage creators:'.format(', '.join(
                 '%s (%d passages)' % (name or 'unknown', count)
                 for name, count in modifiers
-                )
+                )),
+                file=sys.stderr
+            )
         if tool is None and modifiers:
             tool = modifiers[0][0]
 
@@ -56,7 +58,7 @@ def makeOrder(wiki):
     tiddlers = wiki.tiddlers
     storyPassages = set(
         name
-        for name, tiddler in tiddlers.iteritems()
+        for name, tiddler in tiddlers.items()
         if tiddler.isStoryPassage()
         )
     infoPassages = set(tiddlers) - storyPassages
@@ -86,7 +88,7 @@ def makeOrder(wiki):
 
 
 def usage():
-    print >> sys.stderr, 'usage: untwee [-r|--reorder auto|on|off] source'
+    print('usage: untwee [-r|--reorder auto|on|off] source', file=sys.stderr)
 
 def main(argv):
 
@@ -108,7 +110,7 @@ def main(argv):
             try:
                 reorder = {'auto': None, 'on': True, 'off': False}[arg]
             except KeyError:
-                print >> sys.stderr, 'Invalid argument for %s: %s' % (opt, arg)
+                print('Invalid argument for {}: {}'.format(opt, arg), file=sys.stderr)
                 usage()
                 sys.exit(2)
 
@@ -118,7 +120,7 @@ def main(argv):
         for filename in glob(arg)
         ]
     if len(sources) != 1:
-        print >> sys.stderr, 'untwee: %s HTML files specified' % ('multiple' if sources else 'no')
+        print('untwee: {} HTML files specified'.format('multiple' if sources else 'no'), file=sys.stderr)
         sys.exit(2)
     source, = sources
 
@@ -134,8 +136,11 @@ def main(argv):
     head = m.group(1) if m else ''
 
     tool, version = detectCompiler(head, wiki)
-    print >>sys.stderr, 'Compiled by:', 'unknown tool' if tool is None else \
-            '%s %s' % (tool.capitalize(), version or '(unknown version)')
+    print('Compiled by: {}'.format(
+        'unknown tool' if tool is None else '{} {}'.format(
+            tool.capitalize(), version or '(unknown version)')), 
+        file=sys.stderr
+    )
 
     # determine passage order
 
@@ -152,18 +157,18 @@ def main(argv):
             reorder = True
 
     if reorder:
-        print >>sys.stderr, 'Reordering passages.'
+        print('Reordering passages.', file=sys.stderr)
         order = makeOrder(wiki)
     else:
-        print >>sys.stderr, 'Preserving passage order.'
+        print('Preserving passage order.', file=sys.stderr)
 
     # generate output
 
     output = wiki.toTwee(order)
     if sys.stdout.isatty():
-        print output
+        print(output)
     else:
-        print output.encode('utf_8_sig')
+        print(output.encode('utf_8_sig'))
 
 
 if __name__ == '__main__':
