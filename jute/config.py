@@ -1,5 +1,8 @@
 NAME = 'Jute'
-DESCRIPTION = 'A fork of Twine.'
+DESCRIPTION = ''.join([
+    'A save-import and target-export compatible fork of Twine 1.4 with ',
+    'additional features.'
+])
 LICENSE = 'GNU GPLv3'
 VERSION = '0.0.1'
 
