@@ -1,3 +1,5 @@
+import config
+
 import base64
 import codecs
 import os
@@ -11,7 +13,6 @@ import wx
 from wx.lib import imagebrowser
 
 import images
-import version
 from passagewidget import PassageWidget
 from statisticsdialog import StatisticsDialog
 from storymetadataframe import StoryMetadataFrame
@@ -383,7 +384,7 @@ class StoryFrame(wx.Frame):
         self.Bind(
             wx.EVT_MENU,
             lambda e: wx.LaunchDefaultBrowser(
-                "http://twinery.org/wiki/special_passages"
+                config.URL_TWINE_HELP_SPECIALS
             ),
             id=StoryFrame.STORYSETTINGS_HELP,
         )
@@ -1474,9 +1475,9 @@ You can also include URLs of .tws and .twee files, too.
             + percent
             + "%) "
             + "- "
-            + self.app.NAME
+            + config.APP_NAME
             + " "
-            + version.versionString
+            + config.APP_VERSION_STRING
         )
         if not self.GetTitle() == titleText:
             self.SetTitle(titleText)

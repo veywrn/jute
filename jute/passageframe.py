@@ -1,3 +1,5 @@
+import config
+
 import base64
 import io
 import os
@@ -18,7 +20,6 @@ from tiddlywiki import TiddlyWiki
 from tweelexer import TweeLexer
 from tweestyler import TweeStyler
 from utils import isURL
-from version import versionString
 
 
 class PassageFrame(wx.Frame):
@@ -52,7 +53,7 @@ class PassageFrame(wx.Frame):
             self,
             parent,
             wx.ID_ANY,
-            title="Untitled Passage - " + self.app.NAME + " " + versionString,
+            title="Untitled Passage - " + config.APP_NAME + " " + config.APP_VERSION_STRING,
             size=PassageFrame.DEFAULT_SIZE,
         )
 
@@ -193,49 +194,49 @@ class PassageFrame(wx.Frame):
             helpMenu.Append(PassageFrame.HELP1, "About Stylesheets")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/stylesheet"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_STYLESHEETS),
                 id=PassageFrame.HELP1,
             )
         elif self.widget.passage.isScript():
             helpMenu.Append(PassageFrame.HELP1, "About Scripts")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/script"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_SCRIPTS),
                 id=PassageFrame.HELP1,
             )
         else:
             helpMenu.Append(PassageFrame.HELP1, "About Passages")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/passage"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_PASSAGES),
                 id=PassageFrame.HELP1,
             )
 
             helpMenu.Append(PassageFrame.HELP2, "About Text Syntax")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/syntax"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_SYNTAX),
                 id=PassageFrame.HELP2,
             )
 
             helpMenu.Append(PassageFrame.HELP3, "About Links")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/link"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_LINKS),
                 id=PassageFrame.HELP3,
             )
 
             helpMenu.Append(PassageFrame.HELP4, "About Macros")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/macro"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_MACROS),
                 id=PassageFrame.HELP4,
             )
 
             helpMenu.Append(PassageFrame.HELP5, "About Tags")
             self.Bind(
                 wx.EVT_MENU,
-                lambda e: wx.LaunchDefaultBrowser("http://twinery.org/wiki/tag"),
+                lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_TAGS),
                 id=PassageFrame.HELP5,
             )
 
@@ -404,9 +405,9 @@ class PassageFrame(wx.Frame):
             + " - "
             + self.widget.parent.parent.title
             + " - "
-            + self.app.NAME
+            + config.APP_NAME
             + " "
-            + versionString
+            + config.APP_VERSION_STRING
         )
 
     def syncInputs(self):
@@ -1088,9 +1089,9 @@ class StorySettingsFrame(PassageFrame):
             wx.ID_ANY,
             title=self.widget.passage.title
             + " - "
-            + self.app.NAME
+            + config.APP_NAME
             + " "
-            + versionString,
+            + config.APP_VERSION_STRING,
             size=(
                 metrics.size("storySettingsWidth"),
                 metrics.size("storySettingsHeight"),
@@ -1252,7 +1253,7 @@ class ImageFrame(PassageFrame):
             self,
             parent,
             wx.ID_ANY,
-            title="Untitled Passage - " + self.app.NAME + " " + versionString,
+            title="Untitled Passage - " + config.APP_NAME + " " + config.APP_VERSION_STRING,
             size=PassageFrame.DEFAULT_SIZE,
             style=wx.DEFAULT_FRAME_STYLE,
         )

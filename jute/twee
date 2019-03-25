@@ -3,7 +3,6 @@
 import sys, os.path, getopt, glob, traceback
 from header import Header
 from tiddlywiki import TiddlyWiki
-from version import versionString
 
 
 def usage():
@@ -19,7 +18,7 @@ def usage():
 class TweeApp(object):
 
     NAME = "Twee"
-    VERSION = versionString
+    VERSION = "1.4.2"
 
     def __init__(self, path):
         """Initializes the application."""

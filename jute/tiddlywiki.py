@@ -10,6 +10,8 @@ you'd normally see in a TiddlyWiki; the goal here is to provide classes
 that translate between Twee and TiddlyWiki output seamlessly.
 """
 
+import config
+
 import codecs
 import locale
 import os
@@ -106,7 +108,7 @@ class TiddlyWiki(object):
                 return output
 
         # Insert version number
-        output = output.replace('"VERSION"', "Made in " + app.NAME + " " + app.VERSION)
+        output = output.replace('"VERSION"', "Made in " + config.APP_NAME + " " + config.APP_VERSION_STRING)
 
         # Insert timestamp
         # Due to Windows limitations, the timezone offset must be computed manually.

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import config
+
 import os
 import pickle
 import platform
@@ -14,18 +16,11 @@ import metrics
 from header import Header
 from prefframe import PreferenceFrame
 from storyframe import StoryFrame
-from version import versionString
 
 
 class App(wx.App):
     """This bootstraps our application and keeps track of preferences, etc."""
 
-    NAME = "Twine"
-    VERSION = "%s (running on %s %s)" % (
-        versionString,
-        platform.system(),
-        platform.release(),
-    )
     RECENT_FILES = 10
 
     def __init__(self, redirect=False):
@@ -230,52 +225,39 @@ class App(wx.App):
     def about(self, event=None):
         """Shows the about dialog."""
         info = wx.adv.AboutDialogInfo()
-        info.SetName(self.NAME)
-        info.SetVersion(self.VERSION)
+        info.SetName(config.APP_NAME)
+        info.SetDescription(config.APP_DESCRIPTION)
+        info.SetVersion(
+            f"{config.APP_VERSION_STRING} on {config.APP_SYSTEM_STRING}"
+        )
         info.SetIcon(self.icon)
-        info.SetWebSite("http://twinery.org/")
-        info.SetDescription(
-            "An open-source tool for telling interactive stories\nwritten by Chris Klimas"
-        )
-        info.SetDevelopers(
-            [
-                "Leon Arnott",
-                "Emmanuel Turner",
-                "Henry Soule",
-                "Misty De Meo",
-                "Phillip Sutton",
-                "Thomas M. Edwards",
-                "Maarten ter Huurne",
-                "and others.",
-            ]
-        )
-
+        info.SetWebSite(config.URL_TWINE)
         info.SetLicense(
-            "The Twine development application and its Python source code is free software:"
-            " you can redistribute it and/or modify it under the terms of the GNU General Public License"
-            " as published by the Free Software Foundation, either version 3 of the License,"
-            " or (at your option) any later version. See the GNU General Public License for more details."
-            "\n\n"
-            "The Javascript game engine in compiled game files is a derivative work of Jeremy Ruston's"
-            " TiddlyWiki project, and is used under the terms of the MIT license."
+            "{} and {} {} are licensed under {}. Derivative work of TiddlyWiki"
+            " by Jeremy Ruston is licensed under the MIT license.".format(
+                config.APP_ORIGIN_NAME,
+                config.APP_NAME,
+                config.APP_VERSION_STRING,
+                config.APP_LICENSE
+            )
         )
         wx.adv.AboutBox(info)
 
     def storyFormatHelp(self, event=None):
         """Opens the online manual to the section on story formats."""
-        wx.LaunchDefaultBrowser("http://twinery.org/wiki/story_format")
+        wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_STORIES)
 
     def openForum(self, event=None):
         """Opens the forum."""
-        wx.LaunchDefaultBrowser("http://twinery.org/forum/")
+        wx.LaunchDefaultBrowser(config.URL_TWINE_FORUM)
 
     def openDocs(self, event=None):
         """Opens the online manual."""
-        wx.LaunchDefaultBrowser("http://twinery.org/wiki/")
+        wx.LaunchDefaultBrowser(config.URL_TWINE_HELP)
 
     def openGitHub(self, event=None):
         """Opens the GitHub page."""
-        wx.LaunchDefaultBrowser("https://github.com/tweecode/twine")
+        wx.LaunchDefaultBrowser(config.URL_TWINE_GITHUB)
 
     def loadPrefs(self):
         """Loads user preferences into self.config, setting up defaults if none are set."""

@@ -1,3 +1,5 @@
+import config
+
 import wx
 
 import metrics
@@ -15,7 +17,7 @@ class PreferenceFrame(wx.Frame):
             self,
             parent,
             wx.ID_ANY,
-            title=self.app.NAME + " Preferences",
+            title=config.APP_NAME + " Preferences",
             style=wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.CAPTION | wx.SYSTEM_MENU,
         )
 
