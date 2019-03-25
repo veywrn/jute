@@ -20,8 +20,12 @@ from version import versionString
 class App(wx.App):
     """This bootstraps our application and keeps track of preferences, etc."""
 
-    NAME = 'Twine'
-    VERSION = '%s (running on %s %s)' % (versionString, platform.system(), platform.release())  
+    NAME = "Twine"
+    VERSION = "%s (running on %s %s)" % (
+        versionString,
+        platform.system(),
+        platform.release(),
+    )
     RECENT_FILES = 10
 
     def __init__(self, redirect=False):
@@ -35,8 +39,11 @@ class App(wx.App):
         self.loadTargetHeaders()
 
         if not len(self.headers):
-            self.displayError('starting up: there are no story formats available!\n\n'
-                + 'The "targets" directory could have been removed or emptied.\n\nYou may have to reinstall Twine', False)
+            self.displayError(
+                "starting up: there are no story formats available!\n\n"
+                + 'The "targets" directory could have been removed or emptied.\n\nYou may have to reinstall Twine',
+                False,
+            )
             self.Exit()
 
         # try to load our app icon
@@ -45,32 +52,32 @@ class App(wx.App):
         self.icon = wx.Icon()
 
         try:
-            self.icon = wx.Icon(self.iconsPath + 'app.ico', wx.BITMAP_TYPE_ICO)
+            self.icon = wx.Icon(self.iconsPath + "app.ico", wx.BITMAP_TYPE_ICO)
         except:
             pass
-
 
         # restore save location
 
         try:
-            os.chdir(self.config.Read('savePath'))
+            os.chdir(self.config.Read("savePath"))
         except:
-            os.chdir(os.path.expanduser('~'))
+            os.chdir(os.path.expanduser("~"))
 
         if not self.openOnStartup():
-            if self.config.HasEntry('LastFile') \
-            and os.path.exists(self.config.Read('LastFile')):
-                self.open(self.config.Read('LastFile'))
+            if self.config.HasEntry("LastFile") and os.path.exists(
+                self.config.Read("LastFile")
+            ):
+                self.open(self.config.Read("LastFile"))
             else:
                 self.newStory()
 
-    def newStory(self, event = None):
+    def newStory(self, event=None):
         """Opens a new, blank story."""
-        s = StoryFrame(parent = None, app = self)
+        s = StoryFrame(parent=None, app=self)
         self.stories.append(s)
         s.Show(True)
 
-    def removeStory(self, story, byMenu = False):
+    def removeStory(self, story, byMenu=False):
         """Removes a story from our collection. Should be called when it closes."""
         try:
             self.stories.remove(story)
@@ -85,13 +92,19 @@ class App(wx.App):
         except ValueError:
             pass
 
-    def openDialog(self, event = None):
+    def openDialog(self, event=None):
         """Opens a story file of the user's choice."""
-        dialog = wx.FileDialog(None, 'Open Story', os.getcwd(), "", "Twine Story (*.tws)|*.tws", \
-                               wx.FD_OPEN | wx.FD_CHANGE_DIR)
+        dialog = wx.FileDialog(
+            None,
+            "Open Story",
+            os.getcwd(),
+            "",
+            "Twine Story (*.tws)|*.tws",
+            wx.FD_OPEN | wx.FD_CHANGE_DIR,
+        )
 
         if dialog.ShowModal() == wx.ID_OK:
-            self.config.Write('savePath', os.getcwd())
+            self.config.Write("savePath", os.getcwd())
             self.addRecentFile(dialog.GetPath())
             self.open(dialog.GetPath())
 
@@ -113,13 +126,13 @@ class App(wx.App):
     def open(self, path):
         """Opens a specific story file."""
         try:
-            openedFile = open(path, 'rb')
-            newStory = StoryFrame(None, app = self, state = pickle.load(openedFile))
+            openedFile = open(path, "rb")
+            newStory = StoryFrame(None, app=self, state=pickle.load(openedFile))
             newStory.saveDestination = path
             self.stories.append(newStory)
             newStory.Show(True)
             self.addRecentFile(path)
-            self.config.Write('LastFile', path)
+            self.config.Write("LastFile", path)
             openedFile.close()
 
             # weird special case:
@@ -131,7 +144,7 @@ class App(wx.App):
                 self.stories[0].Destroy()
 
         except:
-            self.displayError('opening your story')
+            self.displayError("opening your story")
 
     def openOnStartup(self):
         """
@@ -146,7 +159,7 @@ class App(wx.App):
 
         return True
 
-    def exit(self, event = None):
+    def exit(self, event=None):
         """Closes all open stories, implicitly quitting."""
         # need to make a copy of our stories list since
         # stories removing themselves will alter the list midstream
@@ -154,16 +167,16 @@ class App(wx.App):
             if isinstance(s, StoryFrame):
                 s.Close()
 
-    def showPrefs(self, event = None):
+    def showPrefs(self, event=None):
         """Shows the preferences dialog."""
-        if not hasattr(self, 'prefFrame'):
+        if not hasattr(self, "prefFrame"):
             self.prefFrame = PreferenceFrame(self)
         else:
             try:
                 self.prefFrame.Raise()
             except RuntimeError:
                 # user closed the frame, so we need to recreate it
-                delattr(self, 'prefFrame')
+                delattr(self, "prefFrame")
                 self.showPrefs(event)
 
     def addRecentFile(self, path):
@@ -176,19 +189,26 @@ class App(wx.App):
     def removeRecentFile(self, story, index):
         """Remove all missing files from the recent files history and update the menus."""
 
-        def removeRecentFile_do(story, index, showdialog = True):
+        def removeRecentFile_do(story, index, showdialog=True):
             filename = story.recentFiles.GetHistoryFile(index)
             story.recentFiles.RemoveFileFromHistory(index)
             story.recentFiles.Save(self.config)
             if showdialog:
-                text = 'The file ' + filename + ' no longer exists.\n' + \
-                       'This file has been removed from the Recent Files list.'
-                dlg = wx.MessageDialog(None, text, 'Information', wx.OK | wx.ICON_INFORMATION)
+                text = (
+                    "The file "
+                    + filename
+                    + " no longer exists.\n"
+                    + "This file has been removed from the Recent Files list."
+                )
+                dlg = wx.MessageDialog(
+                    None, text, "Information", wx.OK | wx.ICON_INFORMATION
+                )
                 dlg.ShowModal()
                 dlg.Destroy()
                 return True
             else:
                 return False
+
         showdialog = True
         for s in self.stories:
             if s != story and isinstance(s, StoryFrame):
@@ -207,91 +227,105 @@ class App(wx.App):
             else:
                 done = True
 
-    def about(self, event = None):
+    def about(self, event=None):
         """Shows the about dialog."""
         info = wx.adv.AboutDialogInfo()
         info.SetName(self.NAME)
         info.SetVersion(self.VERSION)
         info.SetIcon(self.icon)
-        info.SetWebSite('http://twinery.org/')
-        info.SetDescription('An open-source tool for telling interactive stories\nwritten by Chris Klimas')
-        info.SetDevelopers(['Leon Arnott','Emmanuel Turner','Henry Soule','Misty De Meo','Phillip Sutton',
-                            'Thomas M. Edwards','Maarten ter Huurne','and others.'])
+        info.SetWebSite("http://twinery.org/")
+        info.SetDescription(
+            "An open-source tool for telling interactive stories\nwritten by Chris Klimas"
+        )
+        info.SetDevelopers(
+            [
+                "Leon Arnott",
+                "Emmanuel Turner",
+                "Henry Soule",
+                "Misty De Meo",
+                "Phillip Sutton",
+                "Thomas M. Edwards",
+                "Maarten ter Huurne",
+                "and others.",
+            ]
+        )
 
-        info.SetLicense('The Twine development application and its Python source code is free software:'
-                        ' you can redistribute it and/or modify it under the terms of the GNU General Public License'
-                        ' as published by the Free Software Foundation, either version 3 of the License,'
-                        ' or (at your option) any later version. See the GNU General Public License for more details.'
-                        '\n\n'
-                        'The Javascript game engine in compiled game files is a derivative work of Jeremy Ruston\'s'
-                        ' TiddlyWiki project, and is used under the terms of the MIT license.')
+        info.SetLicense(
+            "The Twine development application and its Python source code is free software:"
+            " you can redistribute it and/or modify it under the terms of the GNU General Public License"
+            " as published by the Free Software Foundation, either version 3 of the License,"
+            " or (at your option) any later version. See the GNU General Public License for more details."
+            "\n\n"
+            "The Javascript game engine in compiled game files is a derivative work of Jeremy Ruston's"
+            " TiddlyWiki project, and is used under the terms of the MIT license."
+        )
         wx.adv.AboutBox(info)
 
-    def storyFormatHelp(self, event = None):
+    def storyFormatHelp(self, event=None):
         """Opens the online manual to the section on story formats."""
-        wx.LaunchDefaultBrowser('http://twinery.org/wiki/story_format')
+        wx.LaunchDefaultBrowser("http://twinery.org/wiki/story_format")
 
-    def openForum(self, event = None):
+    def openForum(self, event=None):
         """Opens the forum."""
-        wx.LaunchDefaultBrowser('http://twinery.org/forum/')
+        wx.LaunchDefaultBrowser("http://twinery.org/forum/")
 
-    def openDocs(self, event = None):
+    def openDocs(self, event=None):
         """Opens the online manual."""
-        wx.LaunchDefaultBrowser('http://twinery.org/wiki/')
+        wx.LaunchDefaultBrowser("http://twinery.org/wiki/")
 
-    def openGitHub(self, event = None):
+    def openGitHub(self, event=None):
         """Opens the GitHub page."""
-        wx.LaunchDefaultBrowser('https://github.com/tweecode/twine')
+        wx.LaunchDefaultBrowser("https://github.com/tweecode/twine")
 
     def loadPrefs(self):
         """Loads user preferences into self.config, setting up defaults if none are set."""
-        sc = self.config = wx.Config('Twine')
+        sc = self.config = wx.Config("Twine")
 
-        for k,v in {
-            'savePath' : os.path.expanduser('~'),
-            'fsTextColor' : '#afcdff',
-            'fsBgColor' : '#100088',
-            'fsFontFace' : metrics.face('mono'),
-            'fsFontSize' : metrics.size('fsEditorBody'),
-            'fsLineHeight' : 120,
-            'windowedFontFace' : metrics.face('mono'),
-            'monospaceFontFace' : metrics.face('mono2'),
-            'windowedFontSize' : metrics.size('editorBody'),
-            'monospaceFontSize' : metrics.size('editorBody'),
-            'flatDesign' : False,
-            'storyFrameToolbar' : True,
-            'storyPanelSnap' : False,
-            'fastStoryPanel' : False,
-            'imageArrows' : True,
-            'displayArrows' : True,
-            'createPassagePrompt' : True,
-            'importImagePrompt' : True,
-            'passageWarnings' : True
+        for k, v in {
+            "savePath": os.path.expanduser("~"),
+            "fsTextColor": "#afcdff",
+            "fsBgColor": "#100088",
+            "fsFontFace": metrics.face("mono"),
+            "fsFontSize": metrics.size("fsEditorBody"),
+            "fsLineHeight": 120,
+            "windowedFontFace": metrics.face("mono"),
+            "monospaceFontFace": metrics.face("mono2"),
+            "windowedFontSize": metrics.size("editorBody"),
+            "monospaceFontSize": metrics.size("editorBody"),
+            "flatDesign": False,
+            "storyFrameToolbar": True,
+            "storyPanelSnap": False,
+            "fastStoryPanel": False,
+            "imageArrows": True,
+            "displayArrows": True,
+            "createPassagePrompt": True,
+            "importImagePrompt": True,
+            "passageWarnings": True,
         }.items():
             if not sc.HasEntry(k):
                 if type(v) == str:
-                    sc.Write(k,v)
+                    sc.Write(k, v)
                 elif type(v) == int:
-                    sc.WriteInt(k,v)
+                    sc.WriteInt(k, v)
                 elif type(v) == bool:
-                    sc.WriteBool(k,v)
+                    sc.WriteBool(k, v)
 
     def applyPrefs(self):
         """Asks all of our stories to update themselves based on a preference change."""
         for story in self.stories:
             story.applyPrefs()
 
-    def displayError(self, activity,stacktrace = True):
+    def displayError(self, activity, stacktrace=True):
         """
         Displays an error dialog with diagnostic info. Call with what you were doing
         when the error occurred (e.g. 'saving your story', 'building your story'.)
         """
-        text = 'An error occurred while ' + activity + '.\n\n'
+        text = "An error occurred while " + activity + ".\n\n"
         if stacktrace:
-            text += ''.join(traceback.format_exc(5))
+            text += "".join(traceback.format_exc(5))
         else:
-            text += '(' + str(sys.exc_info()[1]) + ').'
-        error = wx.MessageDialog(None, text, 'Error', wx.OK | wx.ICON_ERROR)
+            text += "(" + str(sys.exc_info()[1]) + ")."
+        error = wx.MessageDialog(None, text, "Error", wx.OK | wx.ICON_ERROR)
         error.ShowModal()
 
     def MacReopenApp(self):
@@ -301,22 +335,24 @@ class App(wx.App):
     def determinePaths(self):
         """Determine the paths to relevant files used by application"""
         scriptPath = os.path.dirname(os.path.realpath(sys.argv[0]))
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             # Windows py2exe'd apps add an extraneous library.zip at the end
-            scriptPath = re.sub('\\\\\w*.zip', '', scriptPath)
+            scriptPath = re.sub("\\\\\w*.zip", "", scriptPath)
         elif sys.platform == "darwin":
-            scriptPath = re.sub('MacOS\/.*', '', scriptPath)
+            scriptPath = re.sub("MacOS\/.*", "", scriptPath)
 
         scriptPath += os.sep
-        self.iconsPath = scriptPath + 'icons' + os.sep
-        self.builtinTargetsPath = scriptPath + 'targets' + os.sep
+        self.iconsPath = scriptPath + "icons" + os.sep
+        self.builtinTargetsPath = scriptPath + "targets" + os.sep
 
         if sys.platform == "darwin":
-            self.externalTargetsPath = re.sub('[^/]+.app/.*', 'targets' + os.sep, self.builtinTargetsPath)
+            self.externalTargetsPath = re.sub(
+                "[^/]+.app/.*", "targets" + os.sep, self.builtinTargetsPath
+            )
             if not os.path.isdir(self.externalTargetsPath):
-                self.externalTargetsPath = ''
+                self.externalTargetsPath = ""
         else:
-            self.externalTargetsPath = ''
+            self.externalTargetsPath = ""
 
     def loadTargetHeaders(self):
         """Load the target headers and populate the self.headers dictionary"""
@@ -324,15 +360,23 @@ class App(wx.App):
         # Get paths to built-in targets
         if not os.path.isdir(self.builtinTargetsPath):
             return
-        paths = [(t, self.builtinTargetsPath + t + os.sep) for t in os.listdir(self.builtinTargetsPath)]
+        paths = [
+            (t, self.builtinTargetsPath + t + os.sep)
+            for t in os.listdir(self.builtinTargetsPath)
+        ]
         if self.externalTargetsPath:
             # Get paths to external targets
-            paths += [(t, self.externalTargetsPath + t + os.sep) for t in os.listdir(self.externalTargetsPath)]
+            paths += [
+                (t, self.externalTargetsPath + t + os.sep)
+                for t in os.listdir(self.externalTargetsPath)
+            ]
         # Look in subdirectories only for the header file
         for path in paths:
             try:
-                if not os.path.isfile(path[1]) and os.access(path[1] + 'header.html', os.R_OK):
-                    header = Header.factory(*path, builtinPath = self.builtinTargetsPath)
+                if not os.path.isfile(path[1]) and os.access(
+                    path[1] + "header.html", os.R_OK
+                ):
+                    header = Header.factory(*path, builtinPath=self.builtinTargetsPath)
                     self.headers[header.id] = header
             except:
                 pass

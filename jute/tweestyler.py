@@ -23,10 +23,22 @@ class TweeStyler(TweeLexer):
         the constructor is called, but should be called any time font
         preferences are changed.
         """
-        bodyFont = wx.Font(self.app.config.ReadInt('windowedFontSize'), wx.MODERN, wx.NORMAL, \
-                           wx.NORMAL, False, self.app.config.Read('windowedFontFace'))
-        monoFont = wx.Font(self.app.config.ReadInt('monospaceFontSize'), wx.MODERN, wx.NORMAL, \
-                           wx.NORMAL, False, self.app.config.Read('monospaceFontFace'))
+        bodyFont = wx.Font(
+            self.app.config.ReadInt("windowedFontSize"),
+            wx.MODERN,
+            wx.NORMAL,
+            wx.NORMAL,
+            False,
+            self.app.config.Read("windowedFontFace"),
+        )
+        monoFont = wx.Font(
+            self.app.config.ReadInt("monospaceFontSize"),
+            wx.MODERN,
+            wx.NORMAL,
+            wx.NORMAL,
+            False,
+            self.app.config.Read("monospaceFontFace"),
+        )
 
         self.ctrl.StyleSetFont(wx.stc.STC_STYLE_DEFAULT, bodyFont)
         self.ctrl.StyleClearAll()
@@ -35,7 +47,7 @@ class TweeStyler(TweeLexer):
             self.ctrl.StyleSetFont(i, bodyFont)
 
         # Styles 1-8 are BOLD, ITALIC, UNDERLINE, and bitwise combinations thereof
-        for i in range(0,8):
+        for i in range(0, 8):
             if i & 1:
                 self.ctrl.StyleSetBold(i, True)
             if i & 2:
@@ -115,22 +127,24 @@ class TweeStyler(TweeLexer):
 
     # style colors
 
-    GOOD_LINK_COLOR = '#3333cc'
-    EXTERNAL_COLOR = '#337acc'
-    STORYINCLUDE_COLOR = '#906fe2'
-    BAD_LINK_COLOR = '#cc3333'
-    MARKUP_COLOR = '#008200'
-    MACRO_COLOR = '#a94286'
-    COMMENT_COLOR = '#868686'
-    IMAGE_COLOR = '#088A85'
-    HTML_COLOR = '#4d4d9d'
+    GOOD_LINK_COLOR = "#3333cc"
+    EXTERNAL_COLOR = "#337acc"
+    STORYINCLUDE_COLOR = "#906fe2"
+    BAD_LINK_COLOR = "#cc3333"
+    MARKUP_COLOR = "#008200"
+    MACRO_COLOR = "#a94286"
+    COMMENT_COLOR = "#868686"
+    IMAGE_COLOR = "#088A85"
+    HTML_COLOR = "#4d4d9d"
 
     # param colours
 
-    PARAM_COLOR = '#7f456a'
-    PARAM_VAR_COLOR = '#005682'
-    PARAM_BOOL_COLOR = '#626262'
-    PARAM_STR_COLOR = '#008282'
-    PARAM_NUM_COLOR = '#A15000'
+    PARAM_COLOR = "#7f456a"
+    PARAM_VAR_COLOR = "#005682"
+    PARAM_BOOL_COLOR = "#626262"
+    PARAM_STR_COLOR = "#008282"
+    PARAM_NUM_COLOR = "#A15000"
 
-    TEXT_STYLES = 31    # mask for StartStyling() to indicate we're only changing text styles
+    TEXT_STYLES = (
+        31
+    )  # mask for StartStyling() to indicate we're only changing text styles

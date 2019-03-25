@@ -13,8 +13,10 @@ class FullscreenEditFrame(wx.Frame):
     http://www.psychicorigami.com/2009/01/05/a-5k-python-fullscreen-text-editor/
     """
 
-    def __init__(self, parent, app, frame = None, title = '', initialText = '', callback = lambda i: i):
-        wx.Frame.__init__(self, parent, wx.ID_ANY, title = title, size = (400, 400))
+    def __init__(
+        self, parent, app, frame=None, title="", initialText="", callback=lambda i: i
+    ):
+        wx.Frame.__init__(self, parent, wx.ID_ANY, title=title, size=(400, 400))
         self.app = app
         self.callback = callback
         self.frame = frame
@@ -26,12 +28,14 @@ class FullscreenEditFrame(wx.Frame):
 
         menuBar = wx.MenuBar()
         menu = wx.Menu()
-        menu.Append(wx.ID_SAVE, '&Save Story\tCtrl-S')
-        self.Bind(wx.EVT_MENU, lambda e: self.frame.widget.parent.parent.save(), id = wx.ID_SAVE)
+        menu.Append(wx.ID_SAVE, "&Save Story\tCtrl-S")
+        self.Bind(
+            wx.EVT_MENU, lambda e: self.frame.widget.parent.parent.save(), id=wx.ID_SAVE
+        )
         # An alternative binding for exiting fullscreen, F12, is handled by keyListener.
-        menu.Append(wx.ID_CLOSE, '&Exit Fullscreen\tCtrl-Alt-F')
-        self.Bind(wx.EVT_MENU, lambda e: self.close(), id = wx.ID_CLOSE)
-        menuBar.Append(menu, 'Commands')
+        menu.Append(wx.ID_CLOSE, "&Exit Fullscreen\tCtrl-Alt-F")
+        self.Bind(wx.EVT_MENU, lambda e: self.close(), id=wx.ID_CLOSE)
+        menuBar.Append(menu, "Commands")
         self.SetMenuBar(menuBar)
 
         # margins
@@ -44,12 +48,14 @@ class FullscreenEditFrame(wx.Frame):
 
         self.panel = wx.Panel(self.marginPanel)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        marginSizer.Add(self.panel, 1, flag = wx.EXPAND | wx.LEFT | wx.RIGHT, border = 100)
+        marginSizer.Add(self.panel, 1, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=100)
 
         # controls
 
-        self.editCtrl = wx.stc.StyledTextCtrl(self.panel, style = wx.NO_BORDER | wx.TE_NO_VSCROLL | \
-                                              wx.TE_MULTILINE | wx.TE_PROCESS_TAB)
+        self.editCtrl = wx.stc.StyledTextCtrl(
+            self.panel,
+            style=wx.NO_BORDER | wx.TE_NO_VSCROLL | wx.TE_MULTILINE | wx.TE_PROCESS_TAB,
+        )
         self.editCtrl.SetMargins(0, 0)
         self.editCtrl.SetMarginWidth(1, 0)
         self.editCtrl.SetWrapMode(wx.stc.STC_WRAP_WORD)
@@ -58,14 +64,16 @@ class FullscreenEditFrame(wx.Frame):
         self.editCtrl.SetUseVerticalScrollBar(False)
         self.editCtrl.SetCaretPeriod(750)
 
-        self.directions = wx.StaticText(self.panel, label = FullscreenEditFrame.DIRECTIONS, style = wx.ALIGN_CENTRE)
+        self.directions = wx.StaticText(
+            self.panel, label=FullscreenEditFrame.DIRECTIONS, style=wx.ALIGN_CENTRE
+        )
         labelFont = wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         labelFont.SetPointSize(FullscreenEditFrame.LABEL_FONT_SIZE)
         self.directions.SetFont(labelFont)
 
         self.applyPrefs()
-        sizer.Add(self.editCtrl, 1, flag = wx.EXPAND | wx.ALL)
-        sizer.Add(self.directions, 0, flag = wx.TOP | wx.BOTTOM, border = 6)
+        sizer.Add(self.editCtrl, 1, flag=wx.EXPAND | wx.ALL)
+        sizer.Add(self.directions, 0, flag=wx.TOP | wx.BOTTOM, border=6)
         self.panel.SetSizer(sizer)
 
         # events
@@ -83,18 +91,25 @@ class FullscreenEditFrame(wx.Frame):
 
     def close(self):
         self.callback(self.editCtrl.GetText())
-        if sys.platform == 'darwin': self.ShowFullScreen(False)
+        if sys.platform == "darwin":
+            self.ShowFullScreen(False)
         self.Close()
 
     def applyPrefs(self):
         """
         Applies user preferences to this frame.
         """
-        editFont = wx.Font(self.app.config.ReadInt('fsFontSize'), wx.FONTFAMILY_MODERN, \
-                           wx.FONTSTYLE_NORMAL, wx.NORMAL, False, self.app.config.Read('fsFontFace'))
-        bgColor = self.app.config.Read('fsBgColor')
-        textColor = self.app.config.Read('fsTextColor')
-        lineHeight = self.app.config.ReadInt('fslineHeight') / float(100)
+        editFont = wx.Font(
+            self.app.config.ReadInt("fsFontSize"),
+            wx.FONTFAMILY_MODERN,
+            wx.FONTSTYLE_NORMAL,
+            wx.NORMAL,
+            False,
+            self.app.config.Read("fsFontFace"),
+        )
+        bgColor = self.app.config.Read("fsBgColor")
+        textColor = self.app.config.Read("fsTextColor")
+        lineHeight = self.app.config.ReadInt("fslineHeight") / float(100)
 
         self.panel.SetBackgroundColour(bgColor)
         self.marginPanel.SetBackgroundColour(bgColor)
@@ -137,18 +152,21 @@ class FullscreenEditFrame(wx.Frame):
         self.hideCursor()
         event.Skip()
 
-    def hideCursor(self, event = None):
+    def hideCursor(self, event=None):
         if self.cursorVisible:
             self.SetCursor(wx.StockCursor(wx.CURSOR_BLANK))
             self.editCtrl.SetCursor(wx.StockCursor(wx.CURSOR_BLANK))
             self.cursorVisible = False
 
-    def showCursor(self, event = None):
+    def showCursor(self, event=None):
         if not self.cursorVisible:
             self.SetCursor(wx.StockCursor(wx.CURSOR_DEFAULT))
             self.editCtrl.SetCursor(wx.StockCursor(wx.CURSOR_IBEAM))
             self.cursorVisible = True
 
-    DIRECTIONS = 'Press Escape to close this passage, F12 or ' + \
-        ('Command-Option' if sys.platform == 'darwin' else 'Control-Alt') + '-F to leave fullscreen.'
+    DIRECTIONS = (
+        "Press Escape to close this passage, F12 or "
+        + ("Command-Option" if sys.platform == "darwin" else "Control-Alt")
+        + "-F to leave fullscreen."
+    )
     LABEL_FONT_SIZE = 10

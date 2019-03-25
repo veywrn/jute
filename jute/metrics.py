@@ -24,58 +24,77 @@ def size(type):
     storySettingsWidth - starting width of StorySettings editor
     storySettingsHeight - starting height of StorySettings editor
     """
-    if type == 'windowBorder':
-        if sys.platform == 'win32': return 11
-        if sys.platform == 'darwin': return 16
+    if type == "windowBorder":
+        if sys.platform == "win32":
+            return 11
+        if sys.platform == "darwin":
+            return 16
         return 13
 
-    if type == 'relatedControls':
-        if sys.platform == 'win32': return 7
-        if sys.platform == 'darwin': return 6
+    if type == "relatedControls":
+        if sys.platform == "win32":
+            return 7
+        if sys.platform == "darwin":
+            return 6
         return 9
 
-    if type == 'unrelatedControls':
-        if sys.platform == 'win32': return 11
-        if sys.platform == 'darwin': return 12
+    if type == "unrelatedControls":
+        if sys.platform == "win32":
+            return 11
+        if sys.platform == "darwin":
+            return 12
         return 9
 
-    if type == 'buttonSpace':
-        if sys.platform == 'win32': return 7
-        if sys.platform == 'darwin': return 12
+    if type == "buttonSpace":
+        if sys.platform == "win32":
+            return 7
+        if sys.platform == "darwin":
+            return 12
         return 9
 
-    if type == 'focusRing':
+    if type == "focusRing":
         return 3
 
-    if type == 'fontMin':
-        if sys.platform == 'win32': return 8
-        if sys.platform == 'darwin': return 11
+    if type == "fontMin":
+        if sys.platform == "win32":
+            return 8
+        if sys.platform == "darwin":
+            return 11
 
-    if type == 'fontMax':
+    if type == "fontMax":
         return 24
 
-    if type == 'widgetTitle':
-        if sys.platform == 'win32': return 9
-        if sys.platform == 'darwin': return 13
+    if type == "widgetTitle":
+        if sys.platform == "win32":
+            return 9
+        if sys.platform == "darwin":
+            return 13
         return 11
 
-    if type == 'editorBody':
-        if sys.platform == 'win32': return 11
-        if sys.platform == 'darwin': return 13
+    if type == "editorBody":
+        if sys.platform == "win32":
+            return 11
+        if sys.platform == "darwin":
+            return 13
         return 11
 
-    if type == 'fsEditorBody':
-        if sys.platform == 'win32': return 16
-        if sys.platform == 'darwin': return 20
+    if type == "fsEditorBody":
+        if sys.platform == "win32":
+            return 16
+        if sys.platform == "darwin":
+            return 20
         return 11
 
-    if type == 'storySettingsWidth':
-        if sys.platform == 'darwin': return 550
+    if type == "storySettingsWidth":
+        if sys.platform == "darwin":
+            return 550
         return 450
 
-    if type == 'storySettingsHeight':
-        if sys.platform == 'darwin': return 650
+    if type == "storySettingsHeight":
+        if sys.platform == "darwin":
+            return 650
         return 550
+
 
 def face(type):
     """
@@ -85,16 +104,21 @@ def face(type):
     sans - sans-serif
     mono - monospaced
     """
-    if type == 'sans':
-        if sys.platform == 'win32': return 'Arial'
-        if sys.platform == 'darwin': return 'Helvetica'
-        return 'Sans'
+    if type == "sans":
+        if sys.platform == "win32":
+            return "Arial"
+        if sys.platform == "darwin":
+            return "Helvetica"
+        return "Sans"
 
-    if type == 'mono':
-        if sys.platform == 'win32': return 'Consolas'
-        if sys.platform == 'darwin': return 'Monaco'
-        return 'Fixed'
+    if type == "mono":
+        if sys.platform == "win32":
+            return "Consolas"
+        if sys.platform == "darwin":
+            return "Monaco"
+        return "Fixed"
 
-    if type == 'mono2':
-        if sys.platform in ['win32', 'darwin']: return 'Courier New'
-        return 'Fixed'
+    if type == "mono2":
+        if sys.platform in ["win32", "darwin"]:
+            return "Courier New"
+        return "Fixed"

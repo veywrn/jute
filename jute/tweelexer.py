@@ -38,36 +38,44 @@ class TweeLexer(object):
             return (self.MARKUP, self.MARKUPS[m])
 
         # link
-        m = re.match(tweeregex.LINK_REGEX,text,re.U|re.I)
-        if m: return (self.GOOD_LINK, m)
+        m = re.match(tweeregex.LINK_REGEX, text, re.U | re.I)
+        if m:
+            return (self.GOOD_LINK, m)
 
         # macro
-        m = re.match(tweeregex.MACRO_REGEX,text,re.U|re.I)
-        if m: return (self.MACRO, m)
+        m = re.match(tweeregex.MACRO_REGEX, text, re.U | re.I)
+        if m:
+            return (self.MACRO, m)
 
         # image (cannot have interior markup)
-        m = re.match(tweeregex.IMAGE_REGEX,text,re.U|re.I)
-        if m: return (self.IMAGE, m)
+        m = re.match(tweeregex.IMAGE_REGEX, text, re.U | re.I)
+        if m:
+            return (self.IMAGE, m)
 
         # Old-version HTML block (cannot have interior markup)
-        m = re.match(tweeregex.HTML_BLOCK_REGEX,text,re.U|re.I)
-        if m: return (self.HTML_BLOCK, m)
+        m = re.match(tweeregex.HTML_BLOCK_REGEX, text, re.U | re.I)
+        if m:
+            return (self.HTML_BLOCK, m)
 
         # Inline HTML tags
-        m = re.match(tweeregex.HTML_REGEX,text,re.U|re.I)
-        if m: return (self.HTML, m)
+        m = re.match(tweeregex.HTML_REGEX, text, re.U | re.I)
+        if m:
+            return (self.HTML, m)
 
         # Inline styles
-        m = re.match(tweeregex.INLINE_STYLE_REGEX,text,re.U|re.I)
-        if m: return (self.INLINE_STYLE, m)
+        m = re.match(tweeregex.INLINE_STYLE_REGEX, text, re.U | re.I)
+        if m:
+            return (self.INLINE_STYLE, m)
 
         # Monospace
-        m = re.match(tweeregex.MONO_REGEX,text,re.U|re.I)
-        if m: return (self.MONO, m)
+        m = re.match(tweeregex.MONO_REGEX, text, re.U | re.I)
+        if m:
+            return (self.MONO, m)
 
         # Comment
-        m = re.match(tweeregex.COMMENT_REGEX,text,re.U|re.I)
-        if m: return (self.COMMENT, m)
+        m = re.match(tweeregex.COMMENT_REGEX, text, re.U | re.I)
+        if m:
+            return (self.COMMENT, m)
 
         return (None, None)
 
@@ -81,16 +89,24 @@ class TweeLexer(object):
             for param in iterator:
                 if param.group(1):
                     # String
-                    self.applyStyle(pos2 + param.start(1), len(param.group(1)), self.PARAM_STR)
+                    self.applyStyle(
+                        pos2 + param.start(1), len(param.group(1)), self.PARAM_STR
+                    )
                 elif param.group(2):
                     # Number
-                    self.applyStyle(pos2 + param.start(2), len(param.group(2)), self.PARAM_NUM)
+                    self.applyStyle(
+                        pos2 + param.start(2), len(param.group(2)), self.PARAM_NUM
+                    )
                 elif param.group(3):
                     # Boolean or null
-                    self.applyStyle(pos2 + param.start(3), len(param.group(3)), self.PARAM_BOOL)
+                    self.applyStyle(
+                        pos2 + param.start(3), len(param.group(3)), self.PARAM_BOOL
+                    )
                 elif param.group(4):
                     # Variable
-                    self.applyStyle(pos2 + param.start(4), len(param.group(4)), self.PARAM_VAR)
+                    self.applyStyle(
+                        pos2 + param.start(4), len(param.group(4)), self.PARAM_VAR
+                    )
 
         def applyMacroStyle(pos, m):
             length = m.end(0)
@@ -101,7 +117,7 @@ class TweeLexer(object):
             else:
                 self.applyStyle(pos, length, self.MACRO)
             # Apply different style to the macro contents
-            group = 2 if m.group(1)[0] != '$' else 1
+            group = 2 if m.group(1)[0] != "$" else 1
             contents = m.group(group)
             if contents:
                 pos2 = pos + m.start(group)
@@ -114,12 +130,14 @@ class TweeLexer(object):
         styleStack = []
         styleStart = pos
         inSilence = False
-        macroNestStack = [] # macro nesting
+        macroNestStack = []  # macro nesting
         header = self.getHeader()
 
         self.applyStyle(0, len(text), self.DEFAULT)
 
-        iterator = re.finditer(re.compile(tweeregex.COMBINED_REGEX, re.U|re.I), text[pos:])
+        iterator = re.finditer(
+            re.compile(tweeregex.COMBINED_REGEX, re.U | re.I), text[pos:]
+        )
 
         for p in iterator:
             pos = p.start()
@@ -132,11 +150,11 @@ class TweeLexer(object):
             # markup
             if not inSilence and nextToken == self.MARKUP:
                 if (style <= self.THREE_STYLES and style & m) or style == self.MARKUP:
-                    self.applyStyle(styleStart, pos-styleStart+2, style)
+                    self.applyStyle(styleStart, pos - styleStart + 2, style)
                     style = styleStack.pop() if styleStack else self.DEFAULT
-                    styleStart = pos+2
+                    styleStart = pos + 2
                 else:
-                    self.applyStyle(styleStart, pos-styleStart, style)
+                    self.applyStyle(styleStart, pos - styleStart, style)
                     styleStack.append(style)
                     markup = m
                     if markup <= self.THREE_STYLES and style <= self.THREE_STYLES:
@@ -146,10 +164,10 @@ class TweeLexer(object):
                     styleStart = pos
                 pos += 1
 
-            #link
+            # link
             elif nextToken == self.GOOD_LINK:
                 length = m.end(0)
-                self.applyStyle(styleStart, pos-styleStart, style)
+                self.applyStyle(styleStart, pos - styleStart, style)
 
                 # check for prettylinks
                 s2 = self.GOOD_LINK
@@ -170,119 +188,146 @@ class TweeLexer(object):
                 if m.group(3):
                     self.applyStyle(pos + m.start(3), len(m.group(3)), self.PARAM)
                     applyParamStyle(pos + m.start(3), m.group(3))
-                pos += length-1
-                styleStart = pos+1
+                pos += length - 1
+                styleStart = pos + 1
 
-            #macro
+            # macro
             elif nextToken == self.MACRO:
                 name = m.group(1)
                 length = m.end(0)
                 # Finish the current style
-                self.applyStyle(styleStart, pos-styleStart, style)
+                self.applyStyle(styleStart, pos - styleStart, style)
                 styled = False
 
                 for i in header.nestedMacros():
                     # For matching pairs of macros (if/endif etc)
                     if name == i:
                         styled = True
-                        macroNestStack.append((i,pos, m))
-                        if i=="silently":
+                        macroNestStack.append((i, pos, m))
+                        if i == "silently":
                             inSilence = True
                             styleStack.append(style)
                             style = self.SILENT
                     elif header.isEndTag(name, i):
                         if macroNestStack and macroNestStack[-1][0] == i:
                             # Re-style open macro
-                            macroStart,macroMatch = macroNestStack.pop()[1:]
-                            applyMacroStyle(macroStart,macroMatch)
+                            macroStart, macroMatch = macroNestStack.pop()[1:]
+                            applyMacroStyle(macroStart, macroMatch)
                         else:
                             styled = True
                             self.applyStyle(pos, length, self.BAD_MACRO)
-                        if i=="silently":
+                        if i == "silently":
                             inSilence = False
                             style = styleStack.pop() if styleStack else self.DEFAULT
 
                 if not styled:
-                    applyMacroStyle(pos,m)
-                pos += length-1
-                styleStart = pos+1
+                    applyMacroStyle(pos, m)
+                pos += length - 1
+                styleStart = pos + 1
 
             # image (cannot have interior markup)
             elif nextToken == self.IMAGE:
                 length = m.end(0)
-                self.applyStyle(styleStart, pos-styleStart, style)
+                self.applyStyle(styleStart, pos - styleStart, style)
                 # Check for linked images
                 if m.group(5):
                     self.applyStyle(pos, m.start(5), self.IMAGE)
                     if not self.passageExists(m.group(5)):
                         s2 = TweeLexer.linkStyle(m.group(5))
-                        self.applyStyle(pos+m.start(5)-1, (m.end(5)-m.start(5))+2, s2)
+                        self.applyStyle(
+                            pos + m.start(5) - 1, (m.end(5) - m.start(5)) + 2, s2
+                        )
                     else:
-                        self.applyStyle(pos+m.start(5)-1, (m.end(5)-m.start(5))+2, self.GOOD_LINK)
-                    self.applyStyle(pos+length-1,1, self.IMAGE)
+                        self.applyStyle(
+                            pos + m.start(5) - 1,
+                            (m.end(5) - m.start(5)) + 2,
+                            self.GOOD_LINK,
+                        )
+                    self.applyStyle(pos + length - 1, 1, self.IMAGE)
                 else:
                     self.applyStyle(pos, length, self.IMAGE)
-                pos += length-1
-                styleStart = pos+1
+                pos += length - 1
+                styleStart = pos + 1
 
             # Inline styles
             elif not inSilence and nextToken == self.INLINE_STYLE:
                 if style == self.INLINE_STYLE or style == self.BAD_INLINE_STYLE:
-                    self.applyStyle(styleStart, pos-styleStart+2, style)
+                    self.applyStyle(styleStart, pos - styleStart + 2, style)
                     style = styleStack.pop() if styleStack else self.DEFAULT
-                    styleStart = pos+2
+                    styleStart = pos + 2
                 else:
-                    self.applyStyle(styleStart, pos-styleStart, style)
+                    self.applyStyle(styleStart, pos - styleStart, style)
                     styleStack.append(style)
-                    n = re.match(tweeregex.INLINE_STYLE_PROP_REGEX,text[pos+2:],re.U|re.I)
+                    n = re.match(
+                        tweeregex.INLINE_STYLE_PROP_REGEX, text[pos + 2 :], re.U | re.I
+                    )
                     if n:
                         style = self.INLINE_STYLE
-                        length = len(n.group(0))+2
+                        length = len(n.group(0)) + 2
                     else:
                         style = self.BAD_INLINE_STYLE
                         length = 2
                     styleStart = pos
-                    pos += length-1
+                    pos += length - 1
 
             # others
             elif nextToken in [self.HTML, self.HTML_BLOCK, self.COMMENT, self.MONO]:
                 length = m.end(0)
-                self.applyStyle(styleStart, pos-styleStart, style)
+                self.applyStyle(styleStart, pos - styleStart, style)
                 self.applyStyle(pos, length, nextToken)
-                pos += length-1
-                styleStart = pos+1
+                pos += length - 1
+                styleStart = pos + 1
 
         # Finish up unclosed styles
         self.applyStyle(styleStart, len(text), style)
 
         # Fix up unmatched macros
         while macroNestStack:
-            macroStart,macroMatch = macroNestStack.pop()[1:]
+            macroStart, macroMatch = macroNestStack.pop()[1:]
             self.applyStyle(macroStart, macroMatch.end(0), self.BAD_MACRO)
 
     @staticmethod
     def linkStyle(dest):
         """Apply style for a link destination which does not seem to be an existent passage"""
-        for t in ['http:', 'https:', 'ftp:', 'mailto:', 'javascript:', 'data:', r'[\./]*/']:
+        for t in [
+            "http:",
+            "https:",
+            "ftp:",
+            "mailto:",
+            "javascript:",
+            "data:",
+            r"[\./]*/",
+        ]:
             if re.match(t, dest.lower()):
                 return TweeLexer.EXTERNAL
-        iscode = re.search(tweeregex.MACRO_PARAMS_VAR_REGEX+"|"+tweeregex.MACRO_PARAMS_FUNC_REGEX, dest, re.U)
+        iscode = re.search(
+            tweeregex.MACRO_PARAMS_VAR_REGEX + "|" + tweeregex.MACRO_PARAMS_FUNC_REGEX,
+            dest,
+            re.U,
+        )
         return TweeLexer.PARAM if iscode else TweeLexer.BAD_LINK
 
     # style constants
     # ordering of BOLD through to THREE_STYLES is important
-    STYLE_CONSTANTS = range(0,28)
-    DEFAULT, BOLD, ITALIC, BOLD_ITALIC, UNDERLINE, BOLD_UNDERLINE, ITALIC_UNDERLINE, THREE_STYLES, \
-    GOOD_LINK, STORYINCLUDE_LINK, BAD_LINK, MARKUP, MACRO, BAD_MACRO, SILENT, COMMENT, MONO, IMAGE, EXTERNAL, HTML, HTML_BLOCK, INLINE_STYLE, \
-    BAD_INLINE_STYLE, PARAM_VAR, PARAM_STR, PARAM_NUM, PARAM_BOOL, PARAM = STYLE_CONSTANTS
+    STYLE_CONSTANTS = range(0, 28)
+    DEFAULT, BOLD, ITALIC, BOLD_ITALIC, UNDERLINE, BOLD_UNDERLINE, ITALIC_UNDERLINE, THREE_STYLES, GOOD_LINK, STORYINCLUDE_LINK, BAD_LINK, MARKUP, MACRO, BAD_MACRO, SILENT, COMMENT, MONO, IMAGE, EXTERNAL, HTML, HTML_BLOCK, INLINE_STYLE, BAD_INLINE_STYLE, PARAM_VAR, PARAM_STR, PARAM_NUM, PARAM_BOOL, PARAM = (
+        STYLE_CONSTANTS
+    )
 
     # markup constants
 
-    MARKUPS = {"''" : BOLD, "//" : ITALIC, "__" : UNDERLINE, "^^" : MARKUP, "~~" : MARKUP, "==" : MARKUP}
+    MARKUPS = {
+        "''": BOLD,
+        "//": ITALIC,
+        "__": UNDERLINE,
+        "^^": MARKUP,
+        "~~": MARKUP,
+        "==": MARKUP,
+    }
 
     # nested macros
 
-    NESTED_MACROS = [ "if", "silently" ]
+    NESTED_MACROS = ["if", "silently"]
 
 
 class VerifyLexer(TweeLexer):
@@ -292,7 +337,9 @@ class VerifyLexer(TweeLexer):
     # Takes a PassageWidget instead of a PassageFrame
     def __init__(self, widget):
         self.widget = widget
-        self.twineChecks, self.stylesheetChecks, self.scriptChecks = self.getHeader().passageChecks()
+        self.twineChecks, self.stylesheetChecks, self.scriptChecks = (
+            self.getHeader().passageChecks()
+        )
 
     def getText(self):
         return self.widget.passage.text
@@ -319,11 +366,17 @@ class VerifyLexer(TweeLexer):
 
         else:
             self.lex()
-        return sorted(self.errorList, key = lambda a: (a[1][0] if a[1] else float('inf')))
+        return sorted(self.errorList, key=lambda a: (a[1][0] if a[1] else float("inf")))
 
     def applyStyle(self, start, length, style):
         """Runs all of the checks on the current lex token, then saves errors produced."""
-        end = start+length
+        end = start + length
         tag = self.widget.passage.text[start:end]
         for i in self.twineChecks:
-            self.errorList += [e for e in i(tag, start=start, end=end, style=style, passage=self.widget.passage)]
+            self.errorList += [
+                e
+                for e in i(
+                    tag, start=start, end=end, style=style, passage=self.widget.passage
+                )
+            ]
+

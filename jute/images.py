@@ -12,26 +12,28 @@ def addURIPrefix(text, mimeType):
     """ Adds the Data URI MIME prefix to the base64 data"""
     # SVG MIME-type is the same for both images and fonts
     mimeType = mimeType.lower()
-    if mimeType in 'gif|jpg|jpeg|png|webp|svg':
+    if mimeType in "gif|jpg|jpeg|png|webp|svg":
         # Correct certain MIME types
-        if mimeType == 'jpg':
+        if mimeType == "jpg":
             mimeType = "jpeg"
-        elif mimeType == 'svg':
+        elif mimeType == "svg":
             mimeType += "+xml"
         mimeType = "image/" + mimeType
-    elif mimeType in 'woff|woff2':
+    elif mimeType in "woff|woff2":
         mimeType = "application/font-" + mimeType
-    elif mimeType in 'ttf|otf':
+    elif mimeType in "ttf|otf":
         mimeType = "application/font-sfnt"
     else:
         mimeType = "application/octet-stream"
 
     return "data:" + mimeType + ";base64," + text
 
+
 def removeURIPrefix(text):
     """Removes the Data URI part of the base64 data"""
-    index = text.find(';base64,')
-    return text[index+8:] if index else text
+    index = text.find(";base64,")
+    return text[index + 8 :] if index else text
+
 
 def base64ToBitmap(text):
     """Converts the base64 data URI back into a bitmap"""
@@ -39,11 +41,12 @@ def base64ToBitmap(text):
         # Remove data URI prefix and MIME type
         text = removeURIPrefix(text)
         # Convert to bitmap
-        imgData = text.decode('base64')
+        imgData = text.decode("base64")
         stream = io.StringIO(imgData)
         return wx.BitmapFromImage(wx.ImageFromStream(stream))
     except:
         pass
+
 
 def bitmapToBase64PNG(bmp):
     img = bmp.ConvertToImage()
@@ -52,9 +55,10 @@ def bitmapToBase64PNG(bmp):
     stream = io.StringIO()
     try:
         img.SaveStream(stream, wx.BITMAP_TYPE_PNG)
-        return "data:image/png;base64," + stream.getvalue().encode('base64')
+        return "data:image/png;base64," + stream.getvalue().encode("base64")
     except:
         pass
+
 
 def getImageType(text):
     """Returns the part of the Data URI's MIME type that refers to the type of the image."""
@@ -62,7 +66,7 @@ def getImageType(text):
     search = re.search(r"data:image/(\w+)", text)
     if search:
         return "." + search.group(1)
-    #Fallback
+    # Fallback
     search = re.search(r"application:x-(\w+)", text)
     if search:
         return "." + search.group(1)

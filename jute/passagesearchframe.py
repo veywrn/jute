@@ -10,23 +10,27 @@ class PassageSearchFrame(wx.Frame):
     set via the constructor.
     """
 
-    def __init__(self, parent, passageFrame, app, initialState = 0):
+    def __init__(self, parent, passageFrame, app, initialState=0):
         self.passageFrame = passageFrame
         self.app = app
-        wx.Frame.__init__(self, parent, title = 'Find/Replace In Passage')
+        wx.Frame.__init__(self, parent, title="Find/Replace In Passage")
         panel = wx.Panel(self)
         panelSizer = wx.BoxSizer(wx.VERTICAL)
         panel.SetSizer(panelSizer)
 
         self.notebook = wx.Notebook(panel)
-        self.findPanel = FindPanel(self.notebook, onFind = self.passageFrame.findRegexp, \
-                                   onClose = self.Close)
-        self.replacePanel = ReplacePanel(self.notebook, onFind = self.passageFrame.findRegexp, \
-                                         onReplace = self.passageFrame.replaceOneRegexp, \
-                                         onReplaceAll = self.passageFrame.replaceAllRegexps, \
-                                         onClose = self.Close)
-        self.notebook.AddPage(self.findPanel, 'Find')
-        self.notebook.AddPage(self.replacePanel, 'Replace')
+        self.findPanel = FindPanel(
+            self.notebook, onFind=self.passageFrame.findRegexp, onClose=self.Close
+        )
+        self.replacePanel = ReplacePanel(
+            self.notebook,
+            onFind=self.passageFrame.findRegexp,
+            onReplace=self.passageFrame.replaceOneRegexp,
+            onReplaceAll=self.passageFrame.replaceAllRegexps,
+            onClose=self.Close,
+        )
+        self.notebook.AddPage(self.findPanel, "Find")
+        self.notebook.AddPage(self.replacePanel, "Replace")
         self.notebook.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.onChangeTab)
 
         self.notebook.ChangeSelection(initialState)

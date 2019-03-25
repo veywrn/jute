@@ -9,14 +9,19 @@ class StoryFindFrame(wx.Frame):
     This is just a front-end to method calls on StoryPanel.
     """
 
-    def __init__(self, storyPanel, app, parent = None):
+    def __init__(self, storyPanel, app, parent=None):
         self.storyPanel = storyPanel
         self.app = app
-        wx.Frame.__init__(self, parent, wx.ID_ANY, title = 'Find in Story', \
-                          style = wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.CAPTION | wx.SYSTEM_MENU)
+        wx.Frame.__init__(
+            self,
+            parent,
+            wx.ID_ANY,
+            title="Find in Story",
+            style=wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.CAPTION | wx.SYSTEM_MENU,
+        )
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.SetSizer(sizer)
-        findPanel = FindPanel(parent = self, onFind = self.onFind, onClose = self.onClose)
+        findPanel = FindPanel(parent=self, onFind=self.onFind, onClose=self.onClose)
         findPanel.focus()
         sizer.Add(findPanel)
         sizer.Fit(self)
@@ -29,22 +34,33 @@ class StoryFindFrame(wx.Frame):
     def onClose(self):
         self.Close()
 
+
 class StoryReplaceFrame(wx.Frame):
     """
     This allows the user to replace text across an entire StoryPanel.
     This is just a front-end to method calls on StoryPanel.
     """
 
-    def __init__(self, storyPanel, app, parent = None):
+    def __init__(self, storyPanel, app, parent=None):
         self.storyPanel = storyPanel
         self.app = app
-        wx.Frame.__init__(self, parent, wx.ID_ANY, title = 'Replace Across Entire Story', \
-                          style = wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.CAPTION | wx.SYSTEM_MENU)
+        wx.Frame.__init__(
+            self,
+            parent,
+            wx.ID_ANY,
+            title="Replace Across Entire Story",
+            style=wx.MINIMIZE_BOX | wx.CLOSE_BOX | wx.CAPTION | wx.SYSTEM_MENU,
+        )
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.SetSizer(sizer)
-        replacePanel = ReplacePanel(self, allowIncremental = True, \
-                                    onFind=self.onFind, onReplace=self.onReplace, \
-                                    onReplaceAll = self.onReplaceAll, onClose = self.onClose)
+        replacePanel = ReplacePanel(
+            self,
+            allowIncremental=True,
+            onFind=self.onFind,
+            onReplace=self.onReplace,
+            onReplaceAll=self.onReplaceAll,
+            onClose=self.onClose,
+        )
         sizer.Add(replacePanel)
         replacePanel.focus()
 
