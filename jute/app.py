@@ -4,7 +4,6 @@ import config
 
 import os
 import pickle
-import platform
 import re
 import sys
 import traceback

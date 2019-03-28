@@ -8,6 +8,7 @@ import re
 import sys
 import tempfile
 import urllib
+import urllib.request
 
 import wx
 from wx.lib import imagebrowser
