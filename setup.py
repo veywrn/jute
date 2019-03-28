@@ -1,12 +1,8 @@
-import jute.config
+from setuptools import setup
+import platform
+if platform.system() is 'Windows':
+    from buildexe import setup_args
+elif platform.system() is 'Darwin':
+    from buildapp import setup_args
 
-from distutils.core import setup
-
-setup(
-    name=jute.config.APP_NAME,
-    description=jute.config.APP_DESCRIPTION,
-    version=jute.config.APP_VERSION_STRING,
-    url=jute.config.URL_JUTE_GITHUB,
-    license=jute.config.APP_LICENSE,
-    packages=["jute",],
-)
+setup(**setup_args)

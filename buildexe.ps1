@@ -6,6 +6,7 @@
 
 # Update value below to wherever gcc is installed:
 Set-Item -Path env:CC -Value C:\tools\msys64\mingw32\bin\gcc.exe
+& python -m pip install -U nuitka
 & python -m pip install -r .\requirements.txt
 # Add the following flags to nuitka for a smaller distribution but longer build:
 # --experimental=use_pefile --experimental=use_pefile_recurse
