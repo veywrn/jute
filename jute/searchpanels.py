@@ -181,7 +181,9 @@ class ReplacePanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.SetSizer(sizer)
 
-        fieldSizer = wx.FlexGridSizer(2, 2)
+        fieldSizer = wx.FlexGridSizer(
+            2, 2, metrics.size("relatedControls"), metrics.size("relatedControls")
+        )
         fieldSizer.AddGrowableCol(1, 1)
 
         # find text and label
