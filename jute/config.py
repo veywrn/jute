@@ -3,10 +3,11 @@ Application-wide static settings.
 """
 
 from typing import Tuple
+from i18n import _
 import platform
 
 APP_NAME: str = "Jute"
-APP_DESCRIPTION: str = (
+APP_DESCRIPTION: str = _(
     "A save-import and target-export compatible fork of Twine 1.4 with "
     "additional features, bugfixes, and as is the nature of developing "
     "software, bugs."
