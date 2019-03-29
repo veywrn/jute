@@ -6,37 +6,37 @@ from typing import Tuple
 import platform
 
 APP_NAME: str = "Jute"
-APP_DESCRIPTION: str = " ".join([
-    "A save-import and target-export compatible fork of Twine 1.4 with",
-    "additional features, bugfixes, and as is the nature of developing",
+APP_DESCRIPTION: str = (
+    "A save-import and target-export compatible fork of Twine 1.4 with "
+    "additional features, bugfixes, and as is the nature of developing "
     "software, bugs."
-])
+)
 APP_LICENSE: str = "GNU GPLv3"
 APP_VERSION: Tuple[int, int, int] = (0, 1, 0)
 APP_VERSION_STRING: str = f"{APP_VERSION[0]}.{APP_VERSION[1]}.{APP_VERSION[2]}"
 APP_SYSTEM_STRING: str = f"{platform.system()} {platform.release()}"
-APP_AUTHORS: Tuple[str] = (
-    "tychon <tychon@gmail.com>",
+APP_AUTHORS: str = (
+    "tychon <tychon@gmail.com>\n"
 )
 
 APP_ORIGIN_NAME: str = "Twine 1.4"
-APP_ORIGIN_AUTHORS: Tuple[str] = (
-    "Bo Daley <bo@factorypreset.com>",
-    "Chris Klimas <klimas@gmail.com>",
-    "Christopher Liu <github@christopherliu.net>",
-    "HarmlessTrouble <henry.soule@gmail.com>",
-    "Henry Soule <henry.soule@gmail.com>",
-    "Lachlan Cooper <lachlancooper@gmail.com>",
-    "Leon <L_1_L_0@yahoo.com>",
-    "Maarten ter Huurne <maarten@treewalker.org>",
-    "Misty De Meo <mistydemeo@gmail.com>",
-    "Philip-Sutton <Philip.Sutton@green-innovations.asn.au>",
-    "Richard Lake <richard.lake+git@gmail.com>",
-    "Stormrose <eturnerx@gmail.com>",
-    "factorypreset <bo@darkwork.net>",
-    "greyelf <greyelf@gmail.com>",
-    "ryan <twine@mesolithicstudios.com>",
-    "tmedwards <tmedwards@motoslave.net>",
+APP_ORIGIN_AUTHORS: str = (
+    "Bo Daley <bo@factorypreset.com>\n"
+    "Chris Klimas <klimas@gmail.com>\n"
+    "Christopher Liu <github@christopherliu.net>\n"
+    "HarmlessTrouble <henry.soule@gmail.com>\n"
+    "Henry Soule <henry.soule@gmail.com>\n"
+    "Lachlan Cooper <lachlancooper@gmail.com>\n"
+    "Leon <L_1_L_0@yahoo.com>\n"
+    "Maarten ter Huurne <maarten@treewalker.org>\n"
+    "Misty De Meo <mistydemeo@gmail.com>\n"
+    "Philip-Sutton <Philip.Sutton@green-innovations.asn.au>\n"
+    "Richard Lake <richard.lake+git@gmail.com>\n"
+    "Stormrose <eturnerx@gmail.com>\n"
+    "factorypreset <bo@darkwork.net>\n"
+    "greyelf <greyelf@gmail.com>\n"
+    "ryan <twine@mesolithicstudios.com>\n"
+    "tmedwards <tmedwards@motoslave.net>\n"
 )
 
 URL_JUTE_GITHUB: str = "https://github.com/veywrn/jute"

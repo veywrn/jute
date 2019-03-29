@@ -230,6 +230,16 @@ class App(wx.App):
             f"{config.APP_VERSION_STRING} on {config.APP_SYSTEM_STRING}"
         )
         info.SetIcon(self.icon)
+        info.SetDevelopers(["".join([
+            config.APP_NAME,
+            ":\n",
+            config.APP_AUTHORS,
+            "\n",
+            config.APP_ORIGIN_NAME,
+            ":\n",
+            config.APP_ORIGIN_AUTHORS
+            ])
+        ])
         info.SetWebSite(config.URL_TWINE)
         info.SetLicense(
             "{} and {} {} are licensed under {}. Derivative work of TiddlyWiki"
