@@ -3,8 +3,9 @@ Application-wide static settings.
 """
 
 from typing import Tuple
-from i18n import _
+import i18n
 import platform
+
 
 APP_NAME: str = "Jute"
 APP_DESCRIPTION: str = _(
