@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import config
+import i18n
 
 import os
 import pickle
@@ -64,6 +65,16 @@ class App(wx.App):
                 self.open(self.config.Read("LastFile"))
             else:
                 self.newStory()
+
+    def OnInit(self):
+        self.set_locale(wx.LANGUAGE_DEFAULT)
+
+        return True
+
+    def set_locale(self, locale):
+        wx.Locale.AddCatalogLookupPathPrefix(i18n.locale_dir)
+        self.locale = wx.Locale(locale)
+        self.locale.AddCatalog(config.APP_NAME)
 
     def newStory(self, event=None):
         """Opens a new, blank story."""
