@@ -901,7 +901,7 @@ class StoryPanel(wx.ScrolledWindow):
         self.resize()
         self.Refresh()
         self.Scroll(origin[0], origin[1])
-        self.parent.updateUI()
+        self.parent.update()
 
     def arrowPolygonsToLines(self, list):
         for polygon in list:

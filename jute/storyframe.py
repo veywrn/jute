@@ -37,120 +37,96 @@ class StoryFrame(wx.Frame):
             title=StoryFrame.DEFAULT_TITLE,
             size=StoryFrame.DEFAULT_SIZE,
         )
-        self.app = app
-        self.parent = parent
-        self.pristine = True  # the user has not added any content to this at all
-        self.dirty = False  # the user has not made unsaved changes
-        self.storyFormats = {}  # list of available story formats
-        self.lastTestBuild = None
-        self.title = ""
+        self.SetAcceleratorTable(
+            wx.AcceleratorTable(
+                [
+                    (wx.ACCEL_NORMAL, wx.WXK_RETURN, wx.ID_EDIT),
+                    (wx.ACCEL_CTRL, wx.WXK_RETURN, StoryFrame.STORY_EDIT_FULLSCREEN),
+                ]
+            )
+        )
+        self.SetIcon(app.icon)
 
-        # inner state
+        self.init_state(app, parent, state)
+        self.create_menus()
 
-        if state:
-            self.buildDestination = state.get("buildDestination", "")
-            self.saveDestination = state.get("saveDestination", "")
-            self.setTarget(state.get("target", "sugarcane").lower())
-            self.metadata = state.get("metadata", {})
-            self.storyPanel = StoryPanel(self, app, state=state["storyPanel"])
-            self.pristine = False
+        self.clipboardMonitor = ClipboardMonitor(
+            self.menus.FindItemById(wx.ID_PASTE).Enable
+        )
+        self.clipboardMonitor.Start(100)
+
+        self.create_toolbar()
+        
+        if app.config.ReadBool("storyFrameToolbar"):
+            self.showToolbar = True
+            self.toolbar.Realize()
         else:
-            self.buildDestination = ""
-            self.saveDestination = ""
-            self.metadata = {}
-            self.setTarget("sugarcane")
-            self.storyPanel = StoryPanel(self, app)
+            self.showToolbar = False
+            self.toolbar.Realize()
+            self.toolbar.Hide()
 
         if refreshIncludes:
             self.storyPanel.refreshIncludedPassageList()
 
-        # window events
-
         self.Bind(wx.EVT_CLOSE, self.checkClose)
-        self.Bind(wx.EVT_UPDATE_UI, self.updateUI)
-
-        # Timer for the auto build file watcher
-        self.autobuildtimer = wx.Timer(self)
+        self.Bind(wx.EVT_UPDATE_UI, self.update)
         self.Bind(wx.EVT_TIMER, self.autoBuildTick, self.autobuildtimer)
 
-        # File menu
+    def create_menus(self) -> None:
+        self.menus = wx.MenuBar()
+        self.menus.Append(self.create_file_menu(), "&File")
+        self.menus.Append(self.create_edit_menu(), "&Edit")
+        self.menus.Append(self.create_view_menu(), "&View")
+        self.menus.Append(self.create_story_menu(), "&Story")
+        self.menus.Append(self.create_build_menu(), "&Build")
+        self.menus.Append(self.create_help_menu(), "&Help")
+        self.SetMenuBar(self.menus)
 
-        fileMenu = wx.Menu()
+    def create_build_menu(self) -> wx.Menu:
+        buildMenu = wx.Menu()
 
-        fileMenu.Append(wx.ID_NEW, "&New Story\tCtrl-Shift-N")
-        self.Bind(wx.EVT_MENU, self.app.newStory, id=wx.ID_NEW)
+        buildMenu.Append(StoryFrame.BUILD_TEST, "&Test Play\tCtrl-T")
+        self.Bind(wx.EVT_MENU, self.testBuild, id=StoryFrame.BUILD_TEST)
 
-        fileMenu.Append(wx.ID_OPEN, "&Open Story...\tCtrl-O")
-        self.Bind(wx.EVT_MENU, self.app.openDialog, id=wx.ID_OPEN)
-
-        recentFilesMenu = wx.Menu()
-        self.recentFiles = wx.FileHistory(self.app.RECENT_FILES)
-        self.recentFiles.Load(self.app.config)
-        self.app.verifyRecentFiles(self)
-        self.recentFiles.UseMenu(recentFilesMenu)
-        self.recentFiles.AddFilesToMenu(recentFilesMenu)
-        fileMenu.Append(wx.ID_ANY, "Open &Recent", recentFilesMenu)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 0), id=wx.ID_FILE1)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 1), id=wx.ID_FILE2)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 2), id=wx.ID_FILE3)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 3), id=wx.ID_FILE4)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 4), id=wx.ID_FILE5)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 5), id=wx.ID_FILE6)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 6), id=wx.ID_FILE7)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 7), id=wx.ID_FILE8)
-        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 8), id=wx.ID_FILE9)
+        buildMenu.Append(
+            StoryFrame.BUILD_TEST_HERE, "Test Play From Here\tCtrl-Shift-T"
+        )
         self.Bind(
-            wx.EVT_MENU, lambda e: self.app.openRecent(self, 9), id=wx.ID_FILE9 + 1
+            wx.EVT_MENU,
+            lambda e: self.storyPanel.eachSelectedWidget(
+                lambda w: self.testBuild(startAt=w.passage.title)
+            ),
+            id=StoryFrame.BUILD_TEST_HERE,
         )
 
-        fileMenu.AppendSeparator()
+        buildMenu.Append(StoryFrame.BUILD_VERIFY, "&Verify All Passages")
+        self.Bind(wx.EVT_MENU, self.verify, id=StoryFrame.BUILD_VERIFY)
 
-        fileMenu.Append(wx.ID_SAVE, "&Save Story\tCtrl-S")
-        self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
+        buildMenu.AppendSeparator()
+        buildMenu.Append(StoryFrame.BUILD_BUILD, "&Build Story...\tCtrl-B")
+        self.Bind(wx.EVT_MENU, self.build, id=StoryFrame.BUILD_BUILD)
 
-        fileMenu.Append(wx.ID_SAVEAS, "S&ave Story As...\tCtrl-Shift-S")
-        self.Bind(wx.EVT_MENU, self.saveAs, id=wx.ID_SAVEAS)
+        buildMenu.Append(StoryFrame.BUILD_REBUILD, "&Rebuild Story\tCtrl-R")
+        self.Bind(wx.EVT_MENU, self.rebuild, id=StoryFrame.BUILD_REBUILD)
 
-        fileMenu.Append(wx.ID_REVERT_TO_SAVED, "&Revert to Saved")
-        self.Bind(wx.EVT_MENU, self.revert, id=wx.ID_REVERT_TO_SAVED)
-
-        fileMenu.AppendSeparator()
-
-        # Import submenu
-
-        importMenu = wx.Menu()
-
-        importMenu.Append(StoryFrame.FILE_IMPORT_HTML, "Compiled &HTML File...")
-        self.Bind(wx.EVT_MENU, self.importHtmlDialog, id=StoryFrame.FILE_IMPORT_HTML)
-        importMenu.Append(StoryFrame.FILE_IMPORT_SOURCE, "Twee Source &Code...")
+        buildMenu.Append(StoryFrame.BUILD_VIEW_LAST, "&Rebuild and View\tCtrl-L")
         self.Bind(
-            wx.EVT_MENU, self.importSourceDialog, id=StoryFrame.FILE_IMPORT_SOURCE
+            wx.EVT_MENU,
+            lambda e: self.rebuild(displayAfter=True),
+            id=StoryFrame.BUILD_VIEW_LAST,
         )
 
-        fileMenu.Append(wx.ID_ANY, "&Import", importMenu)
+        buildMenu.AppendSeparator()
 
-        # Export submenu
+        self.autobuildmenuitem = buildMenu.Append(
+            StoryFrame.BUILD_AUTO_BUILD, "&Auto Build", kind=wx.ITEM_CHECK
+        )
+        self.Bind(wx.EVT_MENU, self.autoBuild, self.autobuildmenuitem)
+        buildMenu.Check(StoryFrame.BUILD_AUTO_BUILD, False)
 
-        exportMenu = wx.Menu()
+        return buildMenu
 
-        exportMenu.Append(StoryFrame.FILE_EXPORT_SOURCE, "Twee Source &Code...")
-        self.Bind(wx.EVT_MENU, self.exportSource, id=StoryFrame.FILE_EXPORT_SOURCE)
-
-        exportMenu.Append(StoryFrame.FILE_EXPORT_PROOF, "&Proofing Copy...")
-        self.Bind(wx.EVT_MENU, self.proof, id=StoryFrame.FILE_EXPORT_PROOF)
-
-        fileMenu.Append(wx.ID_ANY, "&Export", exportMenu)
-
-        fileMenu.AppendSeparator()
-
-        fileMenu.Append(wx.ID_CLOSE, "&Close Story\tCtrl-W")
-        self.Bind(wx.EVT_MENU, self.checkCloseMenu, id=wx.ID_CLOSE)
-
-        fileMenu.Append(wx.ID_EXIT, "E&xit Twine\tCtrl-Q")
-        self.Bind(wx.EVT_MENU, lambda e: self.app.exit(), id=wx.ID_EXIT)
-
-        # Edit menu
-
+    def create_edit_menu(self) -> wx.Menu:
         editMenu = wx.Menu()
 
         editMenu.Append(wx.ID_UNDO, "&Undo\tCtrl-Z")
@@ -216,46 +192,102 @@ class StoryFrame(wx.Frame):
         editMenu.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl-,")
         self.Bind(wx.EVT_MENU, self.app.showPrefs, id=wx.ID_PREFERENCES)
 
-        # View menu
+        return editMenu
 
-        viewMenu = wx.Menu()
+    def create_file_menu(self) -> wx.Menu:
+        fileMenu = wx.Menu()
 
-        viewMenu.Append(wx.ID_ZOOM_IN, "Zoom &In\t=")
-        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom("in"), id=wx.ID_ZOOM_IN)
+        fileMenu.Append(wx.ID_NEW, "&New Story\tCtrl-Shift-N")
+        self.Bind(wx.EVT_MENU, self.app.newStory, id=wx.ID_NEW)
 
-        viewMenu.Append(wx.ID_ZOOM_OUT, "Zoom &Out\t-")
-        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom("out"), id=wx.ID_ZOOM_OUT)
+        fileMenu.Append(wx.ID_OPEN, "&Open Story...\tCtrl-O")
+        self.Bind(wx.EVT_MENU, self.app.openDialog, id=wx.ID_OPEN)
 
-        viewMenu.Append(wx.ID_ZOOM_FIT, "Zoom to &Fit\t0")
-        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom("fit"), id=wx.ID_ZOOM_FIT)
-
-        viewMenu.Append(wx.ID_ZOOM_100, "Zoom &100%\t1")
-        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom(1), id=wx.ID_ZOOM_100)
-
-        viewMenu.AppendSeparator()
-
-        viewMenu.Append(StoryFrame.VIEW_SNAP, "Snap to &Grid", kind=wx.ITEM_CHECK)
+        recentFilesMenu = wx.Menu()
+        self.recentFiles = wx.FileHistory(self.app.RECENT_FILES)
+        self.recentFiles.Load(self.app.config)
+        self.app.verifyRecentFiles(self)
+        self.recentFiles.UseMenu(recentFilesMenu)
+        self.recentFiles.AddFilesToMenu(recentFilesMenu)
+        fileMenu.Append(wx.ID_ANY, "Open &Recent", recentFilesMenu)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 0), id=wx.ID_FILE1)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 1), id=wx.ID_FILE2)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 2), id=wx.ID_FILE3)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 3), id=wx.ID_FILE4)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 4), id=wx.ID_FILE5)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 5), id=wx.ID_FILE6)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 6), id=wx.ID_FILE7)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 7), id=wx.ID_FILE8)
+        self.Bind(wx.EVT_MENU, lambda e: self.app.openRecent(self, 8), id=wx.ID_FILE9)
         self.Bind(
-            wx.EVT_MENU,
-            lambda e: self.storyPanel.toggleSnapping(),
-            id=StoryFrame.VIEW_SNAP,
+            wx.EVT_MENU, lambda e: self.app.openRecent(self, 9), id=wx.ID_FILE9 + 1
         )
 
-        viewMenu.Append(StoryFrame.VIEW_CLEANUP, "&Clean Up Passages")
+        fileMenu.AppendSeparator()
+
+        fileMenu.Append(wx.ID_SAVE, "&Save Story\tCtrl-S")
+        self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
+
+        fileMenu.Append(wx.ID_SAVEAS, "S&ave Story As...\tCtrl-Shift-S")
+        self.Bind(wx.EVT_MENU, self.saveAs, id=wx.ID_SAVEAS)
+
+        fileMenu.Append(wx.ID_REVERT_TO_SAVED, "&Revert to Saved")
+        self.Bind(wx.EVT_MENU, self.revert, id=wx.ID_REVERT_TO_SAVED)
+
+        fileMenu.AppendSeparator()
+
+        importMenu = wx.Menu()
+
+        importMenu.Append(StoryFrame.FILE_IMPORT_HTML, "Compiled &HTML File...")
+        self.Bind(wx.EVT_MENU, self.importHtmlDialog, id=StoryFrame.FILE_IMPORT_HTML)
+        importMenu.Append(StoryFrame.FILE_IMPORT_SOURCE, "Twee Source &Code...")
         self.Bind(
-            wx.EVT_MENU, lambda e: self.storyPanel.cleanup(), id=StoryFrame.VIEW_CLEANUP
+            wx.EVT_MENU, self.importSourceDialog, id=StoryFrame.FILE_IMPORT_SOURCE
         )
 
-        viewMenu.AppendSeparator()
+        fileMenu.Append(wx.ID_ANY, "&Import", importMenu)
 
-        viewMenu.Append(StoryFrame.VIEW_TOOLBAR, "&Toolbar", kind=wx.ITEM_CHECK)
-        self.Bind(wx.EVT_MENU, self.toggleToolbar, id=StoryFrame.VIEW_TOOLBAR)
+        exportMenu = wx.Menu()
 
-        # Story menu
+        exportMenu.Append(StoryFrame.FILE_EXPORT_SOURCE, "Twee Source &Code...")
+        self.Bind(wx.EVT_MENU, self.exportSource, id=StoryFrame.FILE_EXPORT_SOURCE)
 
+        exportMenu.Append(StoryFrame.FILE_EXPORT_PROOF, "&Proofing Copy...")
+        self.Bind(wx.EVT_MENU, self.proof, id=StoryFrame.FILE_EXPORT_PROOF)
+
+        fileMenu.Append(wx.ID_ANY, "&Export", exportMenu)
+
+        fileMenu.AppendSeparator()
+
+        fileMenu.Append(wx.ID_CLOSE, "&Close Story\tCtrl-W")
+        self.Bind(wx.EVT_MENU, self.checkCloseMenu, id=wx.ID_CLOSE)
+
+        fileMenu.Append(wx.ID_EXIT, "E&xit Twine\tCtrl-Q")
+        self.Bind(wx.EVT_MENU, lambda e: self.app.exit(), id=wx.ID_EXIT)
+
+        return fileMenu
+
+    def create_help_menu(self) -> wx.Menu:
+        helpMenu = wx.Menu()
+
+        helpMenu.Append(StoryFrame.HELP_MANUAL, "Twine &Wiki")
+        self.Bind(wx.EVT_MENU, self.app.openDocs, id=StoryFrame.HELP_MANUAL)
+
+        helpMenu.Append(StoryFrame.HELP_FORUM, "Twine &Forum")
+        self.Bind(wx.EVT_MENU, self.app.openForum, id=StoryFrame.HELP_FORUM)
+
+        helpMenu.Append(StoryFrame.HELP_GITHUB, "Twine's Source Code on &GitHub")
+        self.Bind(wx.EVT_MENU, self.app.openGitHub, id=StoryFrame.HELP_GITHUB)
+
+        helpMenu.AppendSeparator()
+
+        helpMenu.Append(wx.ID_ABOUT, "&About Twine")
+        self.Bind(wx.EVT_MENU, self.app.about, id=wx.ID_ABOUT)
+
+        return helpMenu
+
+    def create_story_menu(self) -> wx.Menu:
         self.storyMenu = wx.Menu()
-
-        # New Passage submenu
 
         self.newPassageMenu = wx.Menu()
 
@@ -328,8 +360,6 @@ class StoryFrame(wx.Frame):
 
         self.storyMenu.AppendSeparator()
 
-        # Story Settings submenu
-
         self.storySettingsMenu = wx.Menu()
 
         self.storySettingsMenu.Append(StoryFrame.STORYSETTINGS_START, "Start")
@@ -360,7 +390,6 @@ class StoryFrame(wx.Frame):
         self.storySettingsMenu.Append(StoryFrame.STORYSETTINGS_INIT, "StoryInit")
         self.Bind(wx.EVT_MENU, self.createInfoPassage, id=StoryFrame.STORYSETTINGS_INIT)
 
-        # Separator for 'visible' passages (title, subtitle) and those that solely affect compilation
         self.storySettingsMenu.AppendSeparator()
 
         self.storySettingsMenu.Append(
@@ -384,9 +413,7 @@ class StoryFrame(wx.Frame):
         )
         self.Bind(
             wx.EVT_MENU,
-            lambda e: wx.LaunchDefaultBrowser(
-                config.URL_TWINE_HELP_SPECIALS
-            ),
+            lambda e: wx.LaunchDefaultBrowser(config.URL_TWINE_HELP_SPECIALS),
             id=StoryFrame.STORYSETTINGS_HELP,
         )
 
@@ -405,13 +432,11 @@ class StoryFrame(wx.Frame):
 
         self.storyMenu.AppendSeparator()
 
-        # Story Format submenu
-
         storyFormatMenu = wx.Menu()
         storyFormatCounter = StoryFrame.STORY_FORMAT_BASE
 
-        for key in sorted(app.headers.keys()):
-            header = app.headers[key]
+        for key in sorted(self.app.headers.keys()):
+            header = self.app.headers[key]
             storyFormatMenu.Append(storyFormatCounter, header.label, kind=wx.ITEM_CHECK)
             self.Bind(
                 wx.EVT_MENU,
@@ -439,96 +464,45 @@ class StoryFrame(wx.Frame):
         self.storyMenu.Append(StoryFrame.STORY_STATS, "Story &Statistics\tCtrl-I")
         self.Bind(wx.EVT_MENU, self.stats, id=StoryFrame.STORY_STATS)
 
-        # Build menu
+        return self.storyMenu
 
-        buildMenu = wx.Menu()
+    def create_view_menu(self) -> wx.Menu:
+        viewMenu = wx.Menu()
 
-        buildMenu.Append(StoryFrame.BUILD_TEST, "&Test Play\tCtrl-T")
-        self.Bind(wx.EVT_MENU, self.testBuild, id=StoryFrame.BUILD_TEST)
+        viewMenu.Append(wx.ID_ZOOM_IN, "Zoom &In\t=")
+        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom("in"), id=wx.ID_ZOOM_IN)
 
-        buildMenu.Append(
-            StoryFrame.BUILD_TEST_HERE, "Test Play From Here\tCtrl-Shift-T"
-        )
+        viewMenu.Append(wx.ID_ZOOM_OUT, "Zoom &Out\t-")
+        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom("out"), id=wx.ID_ZOOM_OUT)
+
+        viewMenu.Append(wx.ID_ZOOM_FIT, "Zoom to &Fit\t0")
+        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom("fit"), id=wx.ID_ZOOM_FIT)
+
+        viewMenu.Append(wx.ID_ZOOM_100, "Zoom &100%\t1")
+        self.Bind(wx.EVT_MENU, lambda e: self.storyPanel.zoom(1), id=wx.ID_ZOOM_100)
+
+        viewMenu.AppendSeparator()
+
+        viewMenu.Append(StoryFrame.VIEW_SNAP, "Snap to &Grid", kind=wx.ITEM_CHECK)
         self.Bind(
             wx.EVT_MENU,
-            lambda e: self.storyPanel.eachSelectedWidget(
-                lambda w: self.testBuild(startAt=w.passage.title)
-            ),
-            id=StoryFrame.BUILD_TEST_HERE,
+            lambda e: self.storyPanel.toggleSnapping(),
+            id=StoryFrame.VIEW_SNAP,
         )
 
-        buildMenu.Append(StoryFrame.BUILD_VERIFY, "&Verify All Passages")
-        self.Bind(wx.EVT_MENU, self.verify, id=StoryFrame.BUILD_VERIFY)
-
-        buildMenu.AppendSeparator()
-        buildMenu.Append(StoryFrame.BUILD_BUILD, "&Build Story...\tCtrl-B")
-        self.Bind(wx.EVT_MENU, self.build, id=StoryFrame.BUILD_BUILD)
-
-        buildMenu.Append(StoryFrame.BUILD_REBUILD, "&Rebuild Story\tCtrl-R")
-        self.Bind(wx.EVT_MENU, self.rebuild, id=StoryFrame.BUILD_REBUILD)
-
-        buildMenu.Append(StoryFrame.BUILD_VIEW_LAST, "&Rebuild and View\tCtrl-L")
+        viewMenu.Append(StoryFrame.VIEW_CLEANUP, "&Clean Up Passages")
         self.Bind(
-            wx.EVT_MENU,
-            lambda e: self.rebuild(displayAfter=True),
-            id=StoryFrame.BUILD_VIEW_LAST,
+            wx.EVT_MENU, lambda e: self.storyPanel.cleanup(), id=StoryFrame.VIEW_CLEANUP
         )
 
-        buildMenu.AppendSeparator()
+        viewMenu.AppendSeparator()
 
-        self.autobuildmenuitem = buildMenu.Append(
-            StoryFrame.BUILD_AUTO_BUILD, "&Auto Build", kind=wx.ITEM_CHECK
-        )
-        self.Bind(wx.EVT_MENU, self.autoBuild, self.autobuildmenuitem)
-        buildMenu.Check(StoryFrame.BUILD_AUTO_BUILD, False)
+        viewMenu.Append(StoryFrame.VIEW_TOOLBAR, "&Toolbar", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.toggleToolbar, id=StoryFrame.VIEW_TOOLBAR)
 
-        # Help menu
+        return viewMenu
 
-        helpMenu = wx.Menu()
-
-        helpMenu.Append(StoryFrame.HELP_MANUAL, "Twine &Wiki")
-        self.Bind(wx.EVT_MENU, self.app.openDocs, id=StoryFrame.HELP_MANUAL)
-
-        helpMenu.Append(StoryFrame.HELP_FORUM, "Twine &Forum")
-        self.Bind(wx.EVT_MENU, self.app.openForum, id=StoryFrame.HELP_FORUM)
-
-        helpMenu.Append(StoryFrame.HELP_GITHUB, "Twine's Source Code on &GitHub")
-        self.Bind(wx.EVT_MENU, self.app.openGitHub, id=StoryFrame.HELP_GITHUB)
-
-        helpMenu.AppendSeparator()
-
-        helpMenu.Append(wx.ID_ABOUT, "&About Twine")
-        self.Bind(wx.EVT_MENU, self.app.about, id=wx.ID_ABOUT)
-
-        # add menus
-
-        self.menus = wx.MenuBar()
-        self.menus.Append(fileMenu, "&File")
-        self.menus.Append(editMenu, "&Edit")
-        self.menus.Append(viewMenu, "&View")
-        self.menus.Append(self.storyMenu, "&Story")
-        self.menus.Append(buildMenu, "&Build")
-        self.menus.Append(helpMenu, "&Help")
-        self.SetMenuBar(self.menus)
-
-        # enable/disable paste menu option depending on clipboard contents
-
-        self.clipboardMonitor = ClipboardMonitor(
-            self.menus.FindItemById(wx.ID_PASTE).Enable
-        )
-        self.clipboardMonitor.Start(100)
-
-        # extra shortcuts
-
-        self.SetAcceleratorTable(
-            wx.AcceleratorTable(
-                [
-                    (wx.ACCEL_NORMAL, wx.WXK_RETURN, wx.ID_EDIT),
-                    (wx.ACCEL_CTRL, wx.WXK_RETURN, StoryFrame.STORY_EDIT_FULLSCREEN),
-                ]
-            )
-        )
-
+    def create_toolbar(self) -> wx.ToolBar:
         iconPath = self.app.iconsPath
 
         self.toolbar = self.CreateToolBar(style=wx.TB_FLAT | wx.TB_NODIVIDER)
@@ -582,15 +556,31 @@ class StoryFrame(wx.Frame):
         )
         self.Bind(wx.EVT_TOOL, lambda e: self.storyPanel.zoom(1.0), id=wx.ID_ZOOM_100)
 
-        self.SetIcon(self.app.icon)
+        return self.toolbar
 
-        if app.config.ReadBool("storyFrameToolbar"):
-            self.showToolbar = True
-            self.toolbar.Realize()
+    def init_state(self, app: wx.App, parent: wx.Window, state: object) -> None:
+        self.app = app
+        self.autobuildtimer = wx.Timer(self)
+        self.dirty = False  # the user has not made unsaved changes
+        self.lastTestBuild = None
+        self.parent = parent
+        self.pristine = True  # the user has not added any content to this at all
+        self.storyFormats = {}  # list of available story formats
+        self.title = ""
+
+        if state:
+            self.buildDestination = state.get("buildDestination", "")
+            self.saveDestination = state.get("saveDestination", "")
+            self.setTarget(state.get("target", "sugarcane").lower())
+            self.metadata = state.get("metadata", {})
+            self.storyPanel = StoryPanel(self, self.app, state=state["storyPanel"])
+            self.pristine = False
         else:
-            self.showToolbar = False
-            self.toolbar.Realize()
-            self.toolbar.Hide()
+            self.buildDestination = ""
+            self.saveDestination = ""
+            self.metadata = {}
+            self.setTarget("sugarcane")
+            self.storyPanel = StoryPanel(self, self.app)
 
     def revert(self, event=None):
         """Reverts to the last saved version of the story file."""
@@ -1455,44 +1445,14 @@ You can also include URLs of .tws and .twee files, too.
         self.target = target
         self.header = self.app.headers[target]
 
-    def updateUI(self, event=None):
-        """Adjusts menu items to reflect the current state."""
+    def update(self, event=None):
+        self.update_title()
+        self.update_file_menu()
+        self.update_edit_menu()
+        self.update_view_menu()
+        self.update_story_menu()
 
-        selections = self.storyPanel.hasMultipleSelection()
-
-        # window title
-        if self.saveDestination == "":
-            self.title = StoryFrame.DEFAULT_TITLE
-        else:
-            bits = os.path.splitext(self.saveDestination)
-            self.title = os.path.basename(bits[0])
-
-        percent = str(int(round(self.storyPanel.scale * 100)))
-        dirtyText = "" if not self.dirty else " *"
-        titleText = (
-            self.title
-            + dirtyText
-            + " ("
-            + percent
-            + "%) "
-            + "- "
-            + config.APP_NAME
-            + " "
-            + config.APP_VERSION_STRING
-        )
-        if not self.GetTitle() == titleText:
-            self.SetTitle(titleText)
-
-        if not self.menus:
-            return
-
-        # File menu
-
-        self.menus.FindItemById(wx.ID_REVERT_TO_SAVED).Enable(
-            self.saveDestination != "" and self.dirty
-        )
-
-        # Edit menu
+    def update_edit_menu(self) -> None:
         undoItem = self.menus.FindItemById(wx.ID_UNDO)
         undoItem.Enable(self.storyPanel.canUndo())
         undoItem.SetText(
@@ -1509,6 +1469,7 @@ You can also include URLs of .tws and .twee files, too.
             else "Can't Redo\tCtrl-Y"
         )
 
+        selections = self.storyPanel.hasMultipleSelection()
         for item in wx.ID_CUT, wx.ID_COPY, wx.ID_DELETE:
             self.menus.FindItemById(item).Enable(selections > 0)
 
@@ -1516,11 +1477,13 @@ You can also include URLs of .tws and .twee files, too.
             self.storyPanel.lastSearchRegexp is not None
         )
 
-        # View menu
-        self.menus.FindItemById(StoryFrame.VIEW_TOOLBAR).Check(self.showToolbar)
-        self.menus.FindItemById(StoryFrame.VIEW_SNAP).Check(self.storyPanel.snapping)
+    def update_file_menu(self) -> None:
+        self.menus.FindItemById(wx.ID_REVERT_TO_SAVED).Enable(
+            self.saveDestination != "" and self.dirty
+        )
 
-        # Story menu, Build menu
+    def update_story_menu(self) -> None:
+        selections = self.storyPanel.hasMultipleSelection()
 
         editItem = self.menus.FindItemById(wx.ID_EDIT)
         testItem = self.menus.FindItemById(StoryFrame.BUILD_TEST_HERE)
@@ -1563,6 +1526,33 @@ You can also include URLs of .tws and .twee files, too.
         # Story format submenu
         for key in self.storyFormats:
             self.menus.FindItemById(key).Check(self.target == self.storyFormats[key].id)
+
+    def update_view_menu(self) -> None:
+        self.menus.FindItemById(StoryFrame.VIEW_TOOLBAR).Check(self.showToolbar)
+        self.menus.FindItemById(StoryFrame.VIEW_SNAP).Check(self.storyPanel.snapping)
+
+    def update_title(self) -> None:
+        if self.saveDestination == "":
+            self.title = StoryFrame.DEFAULT_TITLE
+        else:
+            bits = os.path.splitext(self.saveDestination)
+            self.title = os.path.basename(bits[0])
+
+        percent = str(int(round(self.storyPanel.scale * 100)))
+        dirtyText = "" if not self.dirty else " *"
+        titleText = (
+            self.title
+            + dirtyText
+            + " ("
+            + percent
+            + "%) "
+            + "- "
+            + config.APP_NAME
+            + " "
+            + config.APP_VERSION_STRING
+        )
+        if not self.GetTitle() == titleText:
+            self.SetTitle(titleText)
 
     def toggleToolbar(self, event=None):
         """Toggles the toolbar onscreen."""
