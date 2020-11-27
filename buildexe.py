@@ -57,8 +57,8 @@ build_manifest = """
 
 build_path = os.path.realpath(os.path.dirname(__file__))
 build_dest_path = os.path.join(build_path, "bin", "win32")
-build_data_path = os.path.join(build_path, "jute", "targets")
-build_icon_path = os.path.join(build_path, "jute", "icons")
+build_data_path = os.path.join(build_path, "assets", "targets")
+build_icon_path = os.path.join(build_path, "assets", "icons")
 
 print("Removing old build at {} ... ".format(build_dest_path), end="")
 shutil.rmtree(build_dest_path, ignore_errors=True)
@@ -82,8 +82,8 @@ setup_args = dict(
             "dest_base": config.APP_NAME,
             "script": os.path.join(build_path, "jute", "app.py"),
             "icon_resources": [
-                (4, os.path.join(build_path, "jute", "appicons", "app.ico")),
-                (5, os.path.join(build_path, "jute", "appicons", "doc.ico")),
+                (4, os.path.join(build_path, "assets", "appicons", "app.ico")),
+                (5, os.path.join(build_path, "assets", "appicons", "doc.ico")),
             ],
             "other_resources": [
                 (
