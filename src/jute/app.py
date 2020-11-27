@@ -343,6 +343,12 @@ class App(wx.App):
         elif sys.platform == "darwin":
             scriptPath = re.sub("MacOS\/.*", "", scriptPath)
 
+        # HACK: Support asset path in debug mode
+        if sys.gettrace() is not None:
+            debugPath = os.path.abspath(os.path.join(scriptPath, '..', '..', 'assets'))
+            if os.path.exists(debugPath):
+                scriptPath = debugPath
+
         scriptPath += os.sep
         self.iconsPath = scriptPath + "icons" + os.sep
         self.builtinTargetsPath = scriptPath + "targets" + os.sep
