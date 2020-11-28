@@ -343,11 +343,7 @@ class App(wx.App):
         elif sys.platform == "darwin":
             scriptPath = re.sub("MacOS\/.*", "", scriptPath)
 
-        # HACK: Support asset path in debug mode
-        if sys.gettrace() is not None:
-            debugPath = os.path.abspath(os.path.join(scriptPath, '..', '..', 'assets'))
-            if os.path.exists(debugPath):
-                scriptPath = debugPath
+        scriptPath = self._find_assets_dir(scriptPath)
 
         scriptPath += os.sep
         self.iconsPath = scriptPath + "icons" + os.sep
@@ -361,6 +357,19 @@ class App(wx.App):
                 self.externalTargetsPath = ""
         else:
             self.externalTargetsPath = ""
+
+    def _find_assets_dir(self, path, distance=2):
+        targets = ('targets', os.path.join('assets', 'targets'))
+
+        while distance >= 0 and os.path.isdir(path):
+            for target in targets:
+                test_path = os.path.join(path, target)
+                if os.path.isdir(test_path):
+                    return os.path.dirname(test_path)
+            path = os.path.dirname(path)
+            distance -= 1
+
+        raise NotADirectoryError(path)
 
     def loadTargetHeaders(self):
         """Load the target headers and populate the self.headers dictionary"""
