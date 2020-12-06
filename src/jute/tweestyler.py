@@ -119,7 +119,7 @@ class TweeStyler(TweeLexer):
         return self.frame.widget.parent.includedPassageExists(title)
 
     def applyStyle(self, start, end, style):
-        self.ctrl.StartStyling(start, self.TEXT_STYLES)
+        self.ctrl.StartStyling(start)
         self.ctrl.SetStyling(end, style)
 
     def getHeader(self):
