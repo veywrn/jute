@@ -2,17 +2,19 @@ import unittest
 from unittest.mock import patch
 
 import os
+import wx
 
-from src.jute.app import App as JuteApp
+import src.jute.assets as assets
+import src.jute.app
+import src.jute.storyframe
 
 
-@patch.object(JuteApp, 'openOnStartup', new=lambda s: True)
 class TwineCompatibilityTests(unittest.TestCase):
     def setUp(self):
         # Twine changes dir without restoring, only lets first test pass.
         self.dir = os.path.abspath(os.curdir)
 
-        assets_dir = os.path.abspath(JuteApp._find_assets_dir(None, self.dir))
+        assets_dir = os.path.abspath(assets._find_assets_dir(self.dir))
         test_dir = os.path.join(assets_dir, 'tests')
         test_files = os.listdir(test_dir)
         self.test_assets = {f: os.path.join(test_dir, f) for f in test_files}
@@ -23,8 +25,10 @@ class TwineCompatibilityTests(unittest.TestCase):
         self.assertNotEqual(os.curdir, self.dir)
         os.chdir(self.dir)
 
+    @patch.object(wx.Frame, 'Show', new=lambda *a, **kw: None)
+    @patch.object(src.jute.app.App, 'openOnStartup', new=lambda *a, **kw: True)
     def load_story(self, path):
-        app = JuteApp()
+        app = src.jute.app.App()
         try:
             app.open(path)
             panel = app.stories[-1].storyPanel
