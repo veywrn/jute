@@ -952,19 +952,19 @@ class PassageFrame(wx.Frame):
         if selection != "":
             if not re.match(r"^\[\[.*\]\]$", selection):
                 if len(selection) < 25:
-                    editSelected.SetText('Create &Link "' + selection + '"\tCtrl-L')
+                    editSelected.SetItemLabel('Create &Link "' + selection + '"\tCtrl-L')
                 else:
-                    editSelected.SetText("Create &Link From Selected Text\tCtrl-L")
+                    editSelected.SetItemLabel("Create &Link From Selected Text\tCtrl-L")
             else:
                 if len(selection) < 25:
-                    editSelected.SetText(
+                    editSelected.SetItemLabel(
                         '&Edit Passage "' + self.stripCrud(selection) + '"\tCtrl-L'
                     )
                 else:
-                    editSelected.SetText("&Edit Passage From Selected Text\tCtrl-L")
+                    editSelected.SetItemLabel("&Edit Passage From Selected Text\tCtrl-L")
             editSelected.Enable(True)
         else:
-            editSelected.SetText("Create &Link From Selected Text\tCtrl-L")
+            editSelected.SetItemLabel("Create &Link From Selected Text\tCtrl-L")
             editSelected.Enable(False)
 
     def updateSubmenus(self, event=None):
@@ -1014,19 +1014,19 @@ class PassageFrame(wx.Frame):
         outTitle = "Outgoing Links"
         if len(outgoing) > 0:
             outTitle += " (" + str(len(outgoing)) + ")"
-        self.outLinksMenuTitle.SetText(outTitle)
+        self.outLinksMenuTitle.SetItemLabel(outTitle)
         populate(self.outLinksMenu, outgoing)
 
         inTitle = "Incoming Links"
         if len(incoming) > 0:
             inTitle += " (" + str(len(incoming)) + ")"
-        self.inLinksMenuTitle.SetText(inTitle)
+        self.inLinksMenuTitle.SetItemLabel(inTitle)
         populate(self.inLinksMenu, incoming)
 
         brokenTitle = "Broken Links"
         if len(broken) > 0:
             brokenTitle += " (" + str(len(broken)) + ")"
-        self.brokenLinksMenuTitle.SetText(brokenTitle)
+        self.brokenLinksMenuTitle.SetItemLabel(brokenTitle)
         populate(self.brokenLinksMenu, broken)
 
     def applyPrefs(self):

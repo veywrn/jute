@@ -1455,7 +1455,7 @@ You can also include URLs of .tws and .twee files, too.
     def update_edit_menu(self) -> None:
         undoItem = self.menus.FindItemById(wx.ID_UNDO)
         undoItem.Enable(self.storyPanel.canUndo())
-        undoItem.SetText(
+        undoItem.SetItemLabel(
             "Undo " + self.storyPanel.undoAction() + "\tCtrl-Z"
             if self.storyPanel.canUndo()
             else "Can't Undo\tCtrl-Z"
@@ -1463,7 +1463,7 @@ You can also include URLs of .tws and .twee files, too.
 
         redoItem = self.menus.FindItemById(wx.ID_REDO)
         redoItem.Enable(self.storyPanel.canRedo())
-        redoItem.SetText(
+        redoItem.SetItemLabel(
             "Redo " + self.storyPanel.redoAction() + "\tCtrl-Y"
             if self.storyPanel.canRedo()
             else "Can't Redo\tCtrl-Y"

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import assets
 import config
 import i18n
 
@@ -23,10 +24,10 @@ class App(wx.App):
 
     RECENT_FILES = 10
 
-    def __init__(self, redirect=False):
+    def __init__(self, *args, **kwargs):
         """Initializes the application."""
-        wx.App.__init__(self, redirect=redirect)
-        wx.Locale().Init(wx.LANGUAGE_DEFAULT)
+
+        wx.App.__init__(self, *args, **kwargs)
 
         self.stories = []
         self.loadPrefs()
@@ -66,15 +67,21 @@ class App(wx.App):
             else:
                 self.newStory()
 
-    def OnInit(self):
-        self.set_locale(wx.LANGUAGE_DEFAULT)
-
-        return True
-
-    def set_locale(self, locale):
+    def InitLocale(self):
+        # BUG wxPython 4.1 has issue with Windows returning en-US instead of
+        #     expected en_US. Workaround from Robin in wxPython discussion:
+        #
+        #     https://discuss.wxpython.org/t/34606
+        #
+        #     Order of calls here is significant.
+        #
+        self.ResetLocale()
+        import locale
+        language, encoding = locale.getdefaultlocale()
         wx.Locale.AddCatalogLookupPathPrefix(i18n.locale_dir)
-        self.locale = wx.Locale(locale)
-        self.locale.AddCatalog(config.APP_NAME)
+        self._initial_locale = wx.Locale(language, language[:2], language)
+        locale.setlocale(locale.LC_ALL, language)
+        self._initial_locale.AddCatalog(config.APP_NAME)
 
     def newStory(self, event=None):
         """Opens a new, blank story."""
@@ -336,14 +343,12 @@ class App(wx.App):
 
     def determinePaths(self):
         """Determine the paths to relevant files used by application"""
-        scriptPath = os.path.dirname(os.path.realpath(sys.argv[0]))
+        scriptPath = assets.DIRECTORY
         if sys.platform == "win32":
             # Windows py2exe'd apps add an extraneous library.zip at the end
             scriptPath = re.sub("\\\\\w*.zip", "", scriptPath)
         elif sys.platform == "darwin":
             scriptPath = re.sub("MacOS\/.*", "", scriptPath)
-
-        scriptPath = self._find_assets_dir(scriptPath)
 
         scriptPath += os.sep
         self.iconsPath = scriptPath + "icons" + os.sep
@@ -357,19 +362,6 @@ class App(wx.App):
                 self.externalTargetsPath = ""
         else:
             self.externalTargetsPath = ""
-
-    def _find_assets_dir(self, path, distance=2):
-        targets = ('targets', os.path.join('assets', 'targets'))
-
-        while distance >= 0 and os.path.isdir(path):
-            for target in targets:
-                test_path = os.path.join(path, target)
-                if os.path.isdir(test_path):
-                    return os.path.dirname(test_path)
-            path = os.path.dirname(path)
-            distance -= 1
-
-        raise NotADirectoryError(path)
 
     def loadTargetHeaders(self):
         """Load the target headers and populate the self.headers dictionary"""

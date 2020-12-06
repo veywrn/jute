@@ -6,4 +6,4 @@ py2app == 0.9.* ;platform_system == 'Darwin'
 pyreadline ;platform_system == 'Windows'
 -e git+https://github.com/albertosottile/py2exe.git@v0.9.3.0#egg=py2exe ;platform_system == 'Windows'
 
-wxPython == 4.0.*
+wxPython == 4.1.*
